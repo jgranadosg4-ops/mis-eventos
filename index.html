@@ -2,34 +2,42 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Mis Eventos</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>ChiquiGo!</title>
 <meta name="theme-color" content="#1a1a2e"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <link rel="apple-touch-icon" href="/CHiqui.png"/>
+<link rel="manifest" href="/manifest.json"/>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   :root {
     --bg: #0f0f1a; --bg2: #1a1a2e; --bg3: #222238; --card: #1e1e32;
     --border: rgba(255,255,255,0.08); --text: #f0f0f0; --text2: #9999bb;
     --purple: #7F77DD; --teal: #1D9E75; --pink: #D4537E; --amber: #EF9F27; --red: #E24B4A;
   }
-  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; }
+  html, body { height: 100%; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; max-width: 600px; margin: 0 auto; }
 
   .nav { background: var(--bg2); padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
-  .nav-title { font-size: 18px; font-weight: 500; }
-  .nav-sub { font-size: 12px; color: var(--text2); margin-top: 1px; }
-  .add-btn { background: var(--purple); color: #fff; border: none; border-radius: 8px; padding: 8px 16px; font-size: 13px; font-weight: 500; cursor: pointer; }
+  .nav-left { display: flex; align-items: center; gap: 10px; }
+  .nav-cat { width: 32px; height: 32px; border-radius: 10px; overflow: hidden; }
+  .nav-cat img { width: 100%; height: 100%; object-fit: cover; }
+  .nav-cat-fallback { width: 32px; height: 32px; border-radius: 10px; background: #2d1a4e; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+  .nav-title { font-size: 18px; font-weight: 600; }
+  .nav-sub { font-size: 11px; color: var(--text2); margin-top: 1px; }
 
-  .tabs { display: flex; background: var(--bg2); border-bottom: 1px solid var(--border); overflow-x: auto; }
-  .tab { padding: 10px 16px; font-size: 13px; color: var(--text2); cursor: pointer; white-space: nowrap; border-bottom: 2px solid transparent; }
+  .tabs { display: flex; background: var(--bg2); border-bottom: 1px solid var(--border); }
+  .tab { flex: 1; padding: 10px 8px; font-size: 12px; color: var(--text2); cursor: pointer; white-space: nowrap; border-bottom: 2px solid transparent; text-align: center; }
   .tab.active { color: var(--purple); border-bottom-color: var(--purple); }
 
   .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 12px 16px; }
-  .stat { background: var(--bg2); border-radius: 10px; padding: 10px; text-align: center; border: 1px solid var(--border); cursor: pointer; transition: border-color 0.2s; }
-  .stat:hover { border-color: var(--purple); }
+  .stat { background: var(--bg2); border-radius: 10px; padding: 10px; text-align: center; border: 1px solid var(--border); cursor: pointer; transition: all 0.2s; }
+  .stat:active { transform: scale(0.97); }
   .stat.active-filter { border-color: var(--purple); background: rgba(127,119,221,0.15); }
   .stat-emoji { font-size: 16px; }
-  .stat-num { font-size: 20px; font-weight: 500; margin-top: 2px; }
+  .stat-num { font-size: 22px; font-weight: 600; margin-top: 2px; }
   .stat-label { font-size: 10px; color: var(--text2); margin-top: 2px; }
 
   .section-label { font-size: 11px; font-weight: 500; color: var(--text2); padding: 8px 16px 4px; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px; }
@@ -37,8 +45,8 @@
   .section-dot.past { background: var(--text2); }
 
   .cards { display: flex; flex-direction: column; gap: 8px; padding: 0 16px; }
-  .ecard { background: var(--card); border-radius: 14px; border: 1px solid var(--border); overflow: hidden; cursor: pointer; }
-  .ecard:hover { border-color: var(--purple); }
+  .ecard { background: var(--card); border-radius: 14px; border: 1px solid var(--border); overflow: hidden; cursor: pointer; transition: border-color 0.2s; }
+  .ecard:active { opacity: 0.8; }
   .ecard-body { padding: 10px 12px; display: flex; gap: 10px; align-items: flex-start; }
   .ecard-date { min-width: 42px; background: rgba(127,119,221,0.15); border-radius: 8px; padding: 6px; text-align: center; flex-shrink: 0; }
   .ecard-date.sports { background: rgba(29,158,117,0.15); }
@@ -49,7 +57,7 @@
   .ecard-info { flex: 1; min-width: 0; }
   .ecard-name { font-size: 15px; font-weight: 500; display: flex; align-items: center; gap: 5px; }
   .ecard-sub { font-size: 12px; color: var(--text2); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .ecard-badges { display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap; align-items: center; }
+  .ecard-badges { display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap; }
   .badge { padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 500; }
   .badge.personal { background: rgba(127,119,221,0.2); color: var(--purple); }
   .badge.familia { background: rgba(212,83,126,0.2); color: var(--pink); }
@@ -63,15 +71,48 @@
   .countdown.far { color: var(--text2); }
 
   .featured { background: var(--bg2); border: 1px solid var(--purple); border-radius: 14px; margin: 0 16px 4px; overflow: hidden; cursor: pointer; display: flex; }
-  .featured-img-side { width: 90px; min-width: 90px; background: linear-gradient(135deg, #2d1a4e, #1a1a2e); display: flex; align-items: center; justify-content: center; font-size: 36px; overflow: hidden; }
-  .featured-img-side img { width: 90px; height: 100%; object-fit: cover; display: block; }
+  .featured-img-side { width: 90px; min-width: 90px; background: linear-gradient(135deg,#2d1a4e,#1a1a2e); display: flex; align-items: center; justify-content: center; font-size: 36px; overflow: hidden; }
+  .featured-img-side img { width: 90px; height: 100%; object-fit: cover; }
   .featured-body { padding: 12px 14px; flex: 1; min-width: 0; }
   .featured-tag { font-size: 10px; color: var(--purple); font-weight: 500; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
   .featured-name { font-size: 17px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .featured-sub { font-size: 12px; color: var(--text2); margin-top: 2px; }
-  .featured-badges { display: flex; gap: 6px; margin-top: 8px; align-items: center; flex-wrap: wrap; }
+  .featured-badges { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
 
-  .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg2); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 8px 0 12px; z-index: 100; }
+  /* CALENDARIO */
+  .cal-container { padding: 0 0 100px; }
+  .cal-header { padding: 14px 16px 8px; display: flex; align-items: center; justify-content: space-between; }
+  .cal-month-title { font-size: 17px; font-weight: 500; }
+  .cal-nav { display: flex; gap: 6px; }
+  .cal-arrow { background: rgba(127,119,221,0.2); border: none; border-radius: 8px; width: 32px; height: 32px; color: var(--purple); font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .cal-days-header { display: grid; grid-template-columns: repeat(7,1fr); padding: 0 12px; }
+  .cal-day-name { text-align: center; font-size: 11px; color: var(--text2); padding: 4px 0; }
+  .cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 2px; padding: 0 12px 8px; }
+  .cal-cell { aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 8px; font-size: 13px; color: var(--text2); position: relative; cursor: pointer; transition: background 0.15s; }
+  .cal-cell:active { opacity: 0.7; }
+  .cal-cell.today { background: rgba(127,119,221,0.2); color: var(--purple); font-weight: 700; }
+  .cal-cell.has-event { color: var(--text); font-weight: 500; }
+  .cal-cell .dot { position: absolute; bottom: 3px; width: 4px; height: 4px; border-radius: 50%; }
+  .dot.music { background: var(--purple); }
+  .dot.sports { background: var(--teal); }
+  .dot.both { background: var(--amber); }
+  .cal-cell.selected { background: var(--purple); color: #fff; font-weight: 700; }
+  .cal-cell.selected .dot { background: #fff; }
+  .cal-legend { display: flex; gap: 14px; padding: 0 14px 10px; }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 10px; color: var(--text2); }
+  .legend-dot { width: 6px; height: 6px; border-radius: 50%; }
+  .cal-divider { height: 0.5px; background: var(--border); margin: 0 14px; }
+  .cal-day-events { padding: 12px 14px 0; }
+  .cal-day-title { font-size: 12px; color: var(--text2); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+  .cal-event-item { background: var(--card); border-radius: 10px; padding: 10px 12px; margin-bottom: 6px; cursor: pointer; display: flex; gap: 10px; align-items: center; }
+  .cal-event-item.music { border-left: 3px solid var(--purple); }
+  .cal-event-item.sports { border-left: 3px solid var(--teal); }
+  .cal-event-name { font-size: 13px; font-weight: 500; }
+  .cal-event-sub { font-size: 11px; color: var(--text2); margin-top: 2px; }
+  .cal-event-cd { font-size: 11px; font-weight: 500; color: var(--purple); flex-shrink: 0; }
+  .no-events-day { font-size: 13px; color: var(--text2); text-align: center; padding: 20px; }
+
+  .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; max-width: 600px; margin: 0 auto; background: var(--bg2); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 8px 0 12px; z-index: 100; }
   .nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; }
   .nav-item svg { width: 22px; height: 22px; stroke: var(--text2); fill: none; stroke-width: 1.5; }
   .nav-item.active svg { stroke: var(--purple); }
@@ -81,12 +122,12 @@
   .nav-fab svg { stroke: #fff; }
 
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 200; display: flex; align-items: flex-end; }
-  .modal { background: var(--bg2); border-radius: 20px 20px 0 0; width: 100%; max-height: 90vh; overflow-y: auto; padding: 20px 16px 40px; }
+  .modal { background: var(--bg2); border-radius: 20px 20px 0 0; width: 100%; max-height: 90vh; overflow-y: auto; padding: 20px 16px 40px; max-width: 600px; margin: 0 auto; }
   .modal-handle { width: 40px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 16px; }
   .modal-title { font-size: 18px; font-weight: 500; margin-bottom: 16px; }
   .form-group { margin-bottom: 14px; }
   .form-label { font-size: 12px; color: var(--text2); margin-bottom: 5px; display: block; font-weight: 500; }
-  .form-input { width: 100%; background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; color: var(--text); font-size: 14px; outline: none; }
+  .form-input { width: 100%; background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; color: var(--text); font-size: 14px; outline: none; -webkit-appearance: none; }
   .form-input:focus { border-color: var(--purple); }
   .group-btns { display: flex; gap: 8px; flex-wrap: wrap; }
   .group-btn { padding: 8px 14px; border-radius: 20px; font-size: 12px; cursor: pointer; border: 1px solid var(--border); background: var(--bg3); color: var(--text2); font-weight: 500; }
@@ -97,9 +138,9 @@
   .submit-btn { width: 100%; padding: 12px; border-radius: 10px; border: none; background: var(--purple); color: #fff; font-size: 15px; font-weight: 500; cursor: pointer; margin-top: 8px; }
   .cancel-btn { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid var(--border); background: none; color: var(--text2); font-size: 14px; cursor: pointer; margin-top: 8px; }
 
-  .detail { position: fixed; inset: 0; background: var(--bg); z-index: 200; overflow-y: auto; padding-bottom: 20px; }
-  .detail-hero { width: 100%; height: 180px; object-fit: cover; display: block; background: var(--bg2); }
-  .detail-hero-placeholder { width: 100%; height: 180px; display: flex; align-items: center; justify-content: center; font-size: 64px; background: linear-gradient(135deg, #2d1a4e, #1a1a2e); }
+  .detail { position: fixed; inset: 0; background: var(--bg); z-index: 200; overflow-y: auto; padding-bottom: 20px; max-width: 600px; margin: 0 auto; }
+  .detail-hero { width: 100%; height: 200px; object-fit: cover; display: block; }
+  .detail-hero-placeholder { width: 100%; height: 200px; display: flex; align-items: center; justify-content: center; font-size: 64px; background: linear-gradient(135deg,#2d1a4e,#1a1a2e); }
   .detail-back { position: absolute; top: 14px; left: 14px; background: rgba(0,0,0,0.5); border: none; border-radius: 50%; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #fff; font-size: 18px; }
   .detail-body { padding: 16px; }
   .detail-name { font-size: 22px; font-weight: 500; margin-bottom: 4px; }
@@ -110,7 +151,7 @@
   .detail-label { font-size: 12px; color: var(--text2); min-width: 80px; }
   .detail-value { font-size: 13px; color: var(--text); }
   .stars-row { display: flex; gap: 4px; margin: 6px 0; }
-  .star { font-size: 26px; cursor: pointer; color: var(--border); }
+  .star { font-size: 28px; cursor: pointer; color: var(--border); }
   .star.on { color: var(--amber); }
   .review-form { background: var(--bg2); border-radius: 10px; padding: 12px; margin-top: 4px; }
   .review-item { background: var(--bg2); border-radius: 10px; padding: 12px; margin-top: 8px; }
@@ -119,25 +160,36 @@
   .review-stars { color: var(--amber); font-size: 12px; }
   .section-header { font-size: 15px; font-weight: 500; margin: 16px 0 8px; }
   .empty-reviews { font-size: 13px; color: var(--text2); text-align: center; padding: 16px; }
-  .notify-btn { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg3); color: var(--text2); font-size: 13px; cursor: pointer; margin-top: 8px; }
-  .delete-btn { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid rgba(226,75,74,0.3); background: rgba(226,75,74,0.1); color: var(--red); font-size: 13px; cursor: pointer; margin-top: 8px; }
-  .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: var(--teal); color: #fff; padding: 10px 20px; border-radius: 10px; font-size: 13px; font-weight: 500; z-index: 999; white-space: nowrap; }
+  .action-btn { width: 100%; padding: 10px; border-radius: 8px; font-size: 13px; cursor: pointer; margin-top: 8px; }
+  .notify-btn { border: 1px solid var(--border); background: var(--bg3); color: var(--text2); }
+  .delete-btn { border: 1px solid rgba(226,75,74,0.3); background: rgba(226,75,74,0.1); color: var(--red); }
+
+  .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: var(--teal); color: #fff; padding: 10px 20px; border-radius: 10px; font-size: 13px; font-weight: 500; z-index: 999; white-space: nowrap; max-width: 90vw; text-align: center; }
   .toast.error { background: var(--red); }
   .hidden { display: none !important; }
   .loading { text-align: center; padding: 40px; color: var(--text2); font-size: 14px; }
   .empty-state { text-align: center; padding: 60px 20px; color: var(--text2); }
   .empty-state .emoji { font-size: 48px; margin-bottom: 12px; }
   .pb100 { padding-bottom: 100px; }
+
+  .notif-banner { margin: 10px 16px 0; background: rgba(127,119,221,0.15); border: 1px solid rgba(127,119,221,0.3); border-radius: 10px; padding: 10px 14px; display: flex; align-items: center; gap: 10px; cursor: pointer; }
+  .notif-banner-text { font-size: 12px; color: var(--text2); flex: 1; }
+  .notif-banner-btn { font-size: 11px; color: var(--purple); font-weight: 500; white-space: nowrap; }
 </style>
 </head>
 <body>
 
 <div class="nav">
-  <div>
-    <div class="nav-title">🎵 Mis Eventos</div>
-    <div class="nav-sub" id="nav-sub">Cargando...</div>
+  <div class="nav-left">
+    <div class="nav-cat" id="nav-cat-img">
+      <img src="/CHiqui.png" onerror="this.parentElement.outerHTML='<div class=nav-cat-fallback>🐱</div>'" alt="ChiquiGo"/>
+    </div>
+    <div>
+      <div class="nav-title">ChiquiGo!</div>
+      <div class="nav-sub" id="nav-sub">Cargando...</div>
+    </div>
   </div>
-  <button class="add-btn" onclick="openAdd()">+ Nuevo</button>
+  <div id="notif-status" style="font-size:18px;cursor:pointer;" onclick="requestNotifPermission()" title="Activar notificaciones">🔔</div>
 </div>
 
 <div class="tabs">
@@ -148,6 +200,7 @@
 </div>
 
 <div id="main-view">
+  <div id="notif-banner-container"></div>
   <div class="stats">
     <div class="stat" id="stat-conciertos-box" onclick="toggleStatFilter('Concierto')">
       <div class="stat-emoji">🎵</div>
@@ -168,6 +221,33 @@
   <div id="events-container" class="pb100"><div class="loading">Cargando eventos...</div></div>
 </div>
 
+<!-- CALENDARIO -->
+<div class="hidden" id="cal-view">
+  <div class="cal-container">
+    <div class="cal-header">
+      <div class="cal-month-title" id="cal-month-title"></div>
+      <div class="cal-nav">
+        <button class="cal-arrow" onclick="calNav(-1)">‹</button>
+        <button class="cal-arrow" onclick="calNav(1)">›</button>
+      </div>
+    </div>
+    <div class="cal-days-header">
+      <div class="cal-day-name">Dom</div><div class="cal-day-name">Lun</div>
+      <div class="cal-day-name">Mar</div><div class="cal-day-name">Mié</div>
+      <div class="cal-day-name">Jue</div><div class="cal-day-name">Vie</div>
+      <div class="cal-day-name">Sáb</div>
+    </div>
+    <div class="cal-grid" id="cal-grid"></div>
+    <div class="cal-legend">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--purple)"></div>Concierto</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--teal)"></div>Deporte</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--amber)"></div>Varios</div>
+    </div>
+    <div class="cal-divider"></div>
+    <div class="cal-day-events" id="cal-day-events"></div>
+  </div>
+</div>
+
 <!-- DETAIL -->
 <div class="detail hidden" id="detail-view">
   <div style="position:relative;">
@@ -182,10 +262,8 @@
     <div class="review-form">
       <div class="form-label">Tu calificación</div>
       <div class="stars-row" id="stars-input">
-        <span class="star" onclick="setStar(1)">★</span>
-        <span class="star" onclick="setStar(2)">★</span>
-        <span class="star" onclick="setStar(3)">★</span>
-        <span class="star" onclick="setStar(4)">★</span>
+        <span class="star" onclick="setStar(1)">★</span><span class="star" onclick="setStar(2)">★</span>
+        <span class="star" onclick="setStar(3)">★</span><span class="star" onclick="setStar(4)">★</span>
         <span class="star" onclick="setStar(5)">★</span>
       </div>
       <input class="form-input" style="margin-top:8px;" id="review-autor" placeholder="Tu nombre"/>
@@ -193,8 +271,8 @@
       <button class="submit-btn" style="margin-top:8px;" onclick="submitReview()">Publicar reseña</button>
     </div>
     <div id="reviews-list"></div>
-    <button class="notify-btn" onclick="notifyAttendees()">🔔 Notificar asistentes</button>
-    <button class="delete-btn" onclick="deleteEvento()">🗑️ Eliminar evento</button>
+    <button class="action-btn notify-btn" onclick="notifyAttendees()">🔔 Notificar asistentes</button>
+    <button class="action-btn delete-btn" onclick="deleteEvento()">🗑️ Eliminar evento</button>
   </div>
 </div>
 
@@ -221,7 +299,7 @@
     </div>
     <div class="form-group">
       <label class="form-label">Venue / Estadio</label>
-      <input class="form-input" id="f-venue" placeholder="Ej. Foro Sol, Estadio Alfredo Harp"/>
+      <input class="form-input" id="f-venue" placeholder="Ej. Foro Sol, Alfredo Harp"/>
     </div>
     <div class="form-group">
       <label class="form-label">Fecha *</label>
@@ -263,9 +341,11 @@ const SPOTIFY_CLIENT_SECRET = 'TU_SPOTIFY_CLIENT_SECRET';
 let eventos = [], currentEventoId = null, currentStars = 0;
 let formTipo = 'Concierto', formGrupo = 'Personal';
 let currentTab = 'todos', currentStatFilter = null;
+let calYear, calMonth, calSelectedDate = null;
 let spotifyToken = null;
 
 const MONTHS = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+const MONTHS_FULL = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 
 function daysUntil(dateStr) {
   const today = new Date();
@@ -295,18 +375,15 @@ function badgeHtml(grupo) {
   return `<span class="badge ${map[grupo]||'personal'}">${emoji[grupo]||''} ${grupo}</span>`;
 }
 
-function typeEmoji(tipo) {
-  return tipo==='Concierto'?'🎵':tipo==='Beisbol'?'⚾':'🏀';
-}
+function typeEmoji(tipo) { return tipo==='Concierto'?'🎵':tipo==='Beisbol'?'⚾':'🏀'; }
 
-async function api(method, path, data) {
+async function supaFetch(path, opts={}) {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
-    method,
-    headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json','Prefer':method==='POST'?'return=representation':'return=minimal'},
-    body: data ? JSON.stringify(data) : undefined
+    ...opts,
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', ...(opts.headers||{}) }
   });
   if (!res.ok) throw new Error(await res.text());
-  return res.status===204||method==='DELETE' ? null : res.json();
+  return res.status===204 ? null : res.json();
 }
 
 async function getSpotifyToken() {
@@ -320,8 +397,7 @@ async function getSpotifyToken() {
 
 async function getArtistImage(name) {
   try {
-    const token = await getSpotifyToken();
-    if (!token) return null;
+    const token = await getSpotifyToken(); if (!token) return null;
     const r = await fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(name)}&type=artist&limit=1`,{headers:{'Authorization':`Bearer ${token}`}});
     return (await r.json()).artists?.items?.[0]?.images?.[0]?.url||null;
   } catch { return null; }
@@ -336,8 +412,8 @@ async function getTeamImage(name) {
 
 async function loadEventos() {
   try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/eventos?order=fecha.asc`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
-    eventos = await res.json();
+    eventos = await supaFetch('eventos?order=fecha.asc');
+    checkUpcomingNotifications();
     renderEventos();
   } catch {
     document.getElementById('events-container').innerHTML='<div class="loading">Error al cargar eventos.</div>';
@@ -356,18 +432,15 @@ function updateStats() {
   let base = [...eventos];
   if (currentTab==='proximos') base = base.filter(e=>daysUntil(e.fecha)>=0);
   else if (currentTab==='pasados'||currentTab==='historial') base = base.filter(e=>daysUntil(e.fecha)<0);
-
   document.getElementById('stat-conciertos').textContent = base.filter(e=>e.tipo==='Concierto').length;
   document.getElementById('stat-beisbol').textContent = base.filter(e=>e.tipo==='Beisbol').length;
   document.getElementById('stat-basketball').textContent = base.filter(e=>e.tipo==='Basketball').length;
-
-  ['Concierto','Beisbol','Basketball'].forEach(t => {
-    const box = document.getElementById(`stat-${t==='Concierto'?'conciertos':t.toLowerCase()}-box`);
-    if (box) box.classList.toggle('active-filter', currentStatFilter===t);
+  ['Concierto','Beisbol','Basketball'].forEach(t=>{
+    const id = `stat-${t==='Concierto'?'conciertos':t.toLowerCase()}-box`;
+    document.getElementById(id)?.classList.toggle('active-filter', currentStatFilter===t);
   });
-
-  const upcoming = eventos.filter(e=>daysUntil(e.fecha)>=0).length;
-  document.getElementById('nav-sub').textContent = `${eventos.length} eventos · ${upcoming} próximos`;
+  const up = eventos.filter(e=>daysUntil(e.fecha)>=0).length;
+  document.getElementById('nav-sub').textContent = `${eventos.length} eventos · ${up} próximos`;
 }
 
 function toggleStatFilter(tipo) {
@@ -378,37 +451,33 @@ function toggleStatFilter(tipo) {
 function renderEventos() {
   updateStats();
   const filtered = getTabFiltered();
-
   if (currentTab==='historial') { renderHistorial(filtered); return; }
-
   const upcoming = filtered.filter(e=>daysUntil(e.fecha)>=0).sort((a,b)=>a.fecha.localeCompare(b.fecha));
   const past = filtered.filter(e=>daysUntil(e.fecha)<0).sort((a,b)=>b.fecha.localeCompare(a.fecha));
-
   let html = '';
   if (!filtered.length) {
-    html = `<div class="empty-state"><div class="emoji">🎤</div><p>No hay eventos aquí todavía.<br>¡Agrega el primero!</p></div>`;
+    html=`<div class="empty-state"><div class="emoji">🎤</div><p>No hay eventos aquí.<br>¡Agrega el primero!</p></div>`;
   } else {
     if (upcoming.length>0) {
       const next = upcoming[0];
-      html += `<div class="featured" onclick="openDetail('${next.id}')">
+      html+=`<div class="featured" onclick="openDetail('${next.id}')">
         <div class="featured-img-side">${next.imagen_url?`<img src="${next.imagen_url}" onerror="this.parentElement.innerHTML='${typeEmoji(next.tipo)}'">`:typeEmoji(next.tipo)}</div>
         <div class="featured-body">
           <div class="featured-tag">Próximo evento</div>
           <div class="featured-name">${next.nombre}</div>
           <div class="featured-sub">${formatDate(next.fecha)}${next.venue?' · '+next.venue:''}</div>
           <div class="featured-badges">${countdownHtml(next.fecha)} ${badgeHtml(next.grupo)}</div>
-        </div>
-      </div>`;
+        </div></div>`;
       if (upcoming.length>1) {
-        html += `<div class="section-label" style="margin-top:8px"><div class="section-dot"></div>Próximos (${upcoming.length})</div><div class="cards">`;
-        upcoming.slice(1).forEach(e=>{ html+=cardHtml(e,false); });
-        html += '</div>';
+        html+=`<div class="section-label" style="margin-top:8px"><div class="section-dot"></div>Próximos (${upcoming.length})</div><div class="cards">`;
+        upcoming.slice(1).forEach(e=>{html+=cardHtml(e,false);});
+        html+='</div>';
       }
     }
     if (past.length>0) {
-      html += `<div class="section-label" style="margin-top:12px"><div class="section-dot past"></div>Pasados (${past.length})</div><div class="cards">`;
-      past.forEach(e=>{ html+=cardHtml(e,true); });
-      html += '</div>';
+      html+=`<div class="section-label" style="margin-top:12px"><div class="section-dot past"></div>Pasados (${past.length})</div><div class="cards">`;
+      past.forEach(e=>{html+=cardHtml(e,true);});
+      html+='</div>';
     }
   }
   document.getElementById('events-container').innerHTML = html;
@@ -421,8 +490,7 @@ function cardHtml(e, isPast) {
   return `<div class="ecard" onclick="openDetail('${e.id}')" style="${isPast?'opacity:0.8':''}">
     <div class="ecard-body">
       <div class="ecard-date ${isS?'sports':''}">
-        <div class="day">${d.getDate()}</div>
-        <div class="mon">${MONTHS[d.getMonth()]}</div>
+        <div class="day">${d.getDate()}</div><div class="mon">${MONTHS[d.getMonth()]}</div>
       </div>
       <div class="ecard-info">
         <div class="ecard-name">${typeEmoji(e.tipo)} ${e.nombre}</div>
@@ -446,24 +514,140 @@ function cardHtml(e, isPast) {
 function renderHistorial(filtered) {
   const past = filtered.sort((a,b)=>b.fecha.localeCompare(a.fecha));
   let html = `<div style="padding:12px 16px 0;font-size:20px;font-weight:500;">📊 Historial</div>`;
-  if (!past.length) html += `<div class="empty-state"><div class="emoji">🎟️</div><p>Aún no tienes eventos pasados</p></div>`;
-  else html += `<div class="cards" style="margin-top:8px;">${past.map(e=>cardHtml(e,true)).join('')}</div>`;
+  html += !past.length
+    ? `<div class="empty-state"><div class="emoji">🎟️</div><p>Aún no tienes eventos pasados</p></div>`
+    : `<div class="cards" style="margin-top:8px;">${past.map(e=>cardHtml(e,true)).join('')}</div>`;
   document.getElementById('events-container').innerHTML = html;
 }
 
-async function openDetail(id) {
-  currentEventoId = id; currentStars = 0;
-  const e = eventos.find(x=>x.id===id);
-  if (!e) return;
+// ── CALENDARIO ──
+function initCal() {
+  const now = new Date();
+  calYear = now.getFullYear();
+  calMonth = now.getMonth();
+  calSelectedDate = null;
+  renderCal();
+}
 
+function calNav(dir) {
+  calMonth += dir;
+  if (calMonth > 11) { calMonth = 0; calYear++; }
+  if (calMonth < 0) { calMonth = 11; calYear--; }
+  calSelectedDate = null;
+  renderCal();
+}
+
+function renderCal() {
+  document.getElementById('cal-month-title').textContent = `${MONTHS_FULL[calMonth]} ${calYear}`;
+  const today = new Date(); today.setHours(0,0,0,0);
+  const firstDay = new Date(calYear, calMonth, 1).getDay();
+  const daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
+
+  // Indexar eventos por fecha
+  const eventsByDate = {};
+  eventos.forEach(e => {
+    const p = e.fecha.split('-');
+    if (+p[0]===calYear && +p[1]-1===calMonth) {
+      const day = +p[2];
+      if (!eventsByDate[day]) eventsByDate[day] = [];
+      eventsByDate[day].push(e);
+    }
+  });
+
+  let html = '';
+  // Celdas vacías
+  for (let i=0; i<firstDay; i++) html += `<div class="cal-cell"></div>`;
+  // Días
+  for (let d=1; d<=daysInMonth; d++) {
+    const cellDate = new Date(calYear, calMonth, d);
+    const isToday = cellDate.getTime()===today.getTime();
+    const isSelected = calSelectedDate===d;
+    const evs = eventsByDate[d]||[];
+    const hasMusic = evs.some(e=>e.tipo==='Concierto');
+    const hasSports = evs.some(e=>e.tipo!=='Concierto');
+    let dotClass = hasMusic&&hasSports?'both':hasMusic?'music':hasSports?'sports':'';
+    let cls = 'cal-cell';
+    if (isToday) cls+=' today';
+    if (isSelected) cls+=' selected';
+    if (evs.length>0) cls+=' has-event';
+    html += `<div class="${cls}" onclick="selectCalDay(${d})">${d}${dotClass?`<div class="dot ${dotClass}"></div>`:''}`;
+    html += '</div>';
+  }
+  document.getElementById('cal-grid').innerHTML = html;
+  renderCalDayEvents();
+}
+
+function selectCalDay(d) {
+  calSelectedDate = calSelectedDate===d ? null : d;
+  renderCal();
+}
+
+function renderCalDayEvents() {
+  const el = document.getElementById('cal-day-events');
+  if (!calSelectedDate) { el.innerHTML='<div class="no-events-day" style="color:var(--text2);font-size:12px;">Toca un día para ver sus eventos</div>'; return; }
+  const p = String(calSelectedDate).padStart(2,'0');
+  const m = String(calMonth+1).padStart(2,'0');
+  const dateStr = `${calYear}-${m}-${p}`;
+  const dayEvs = eventos.filter(e=>e.fecha===dateStr);
+  if (!dayEvs.length) { el.innerHTML=`<div class="cal-day-title">${calSelectedDate} ${MONTHS_FULL[calMonth]}</div><div class="no-events-day">Sin eventos este día</div>`; return; }
+  let html = `<div class="cal-day-title">${calSelectedDate} ${MONTHS_FULL[calMonth]} — ${dayEvs.length} evento${dayEvs.length>1?'s':''}</div>`;
+  dayEvs.forEach(e=>{
+    const isS = e.tipo!=='Concierto';
+    html+=`<div class="cal-event-item ${isS?'sports':'music'}" onclick="openDetail('${e.id}')">
+      <div class="cal-event-info">
+        <div class="cal-event-name">${typeEmoji(e.tipo)} ${e.nombre}</div>
+        <div class="cal-event-sub">${e.venue||''}${e.grupo?' · '+e.grupo:''}</div>
+      </div>
+      <div class="cal-event-cd">${countdownHtml(e.fecha).replace(/<[^>]+>/g,'')}</div>
+    </div>`;
+  });
+  el.innerHTML = html;
+}
+
+// ── NOTIFICACIONES ──
+async function requestNotifPermission() {
+  if (!('Notification' in window)) { showToast('Tu navegador no soporta notificaciones',true); return; }
+  const perm = await Notification.requestPermission();
+  updateNotifIcon();
+  if (perm==='granted') showToast('Notificaciones activadas 🔔');
+  else showToast('Permiso denegado',true);
+}
+
+function updateNotifIcon() {
+  const el = document.getElementById('notif-status');
+  if (!el) return;
+  if (!('Notification' in window)) { el.style.display='none'; return; }
+  el.textContent = Notification.permission==='granted' ? '🔔' : '🔕';
+  el.title = Notification.permission==='granted' ? 'Notificaciones activas' : 'Activar notificaciones';
+}
+
+function checkUpcomingNotifications() {
+  if (!('Notification' in window) || Notification.permission!=='granted') return;
+  const lastCheck = localStorage.getItem('lastNotifCheck');
+  const today = new Date().toDateString();
+  if (lastCheck===today) return;
+  localStorage.setItem('lastNotifCheck', today);
+  const upcoming = eventos.filter(e=>{ const d=daysUntil(e.fecha); return d>=0&&d<=3; });
+  upcoming.forEach(e=>{
+    const days = daysUntil(e.fecha);
+    const msg = days===0?'¡Es HOY!':days===1?'¡Es mañana!':`Faltan ${days} días`;
+    new Notification(`${typeEmoji(e.tipo)} ${e.nombre}`, {
+      body: `${msg} · ${e.venue||''}`,
+      icon: '/CHiqui.png'
+    });
+  });
+}
+
+// ── DETAIL ──
+async function openDetail(id) {
+  currentEventoId=id; currentStars=0;
+  const e = eventos.find(x=>x.id===id); if (!e) return;
   document.getElementById('detail-name').textContent = e.nombre;
   document.getElementById('detail-sub').textContent = `${formatDate(e.fecha)}${e.venue?' · '+e.venue:''}`;
-
   const heroEl = document.getElementById('detail-hero-img');
   heroEl.innerHTML = e.imagen_url
     ? `<img src="${e.imagen_url}" class="detail-hero" onerror="this.outerHTML='<div class=detail-hero-placeholder>${typeEmoji(e.tipo)}</div>'">`
     : `<div class="detail-hero-placeholder">${typeEmoji(e.tipo)}</div>`;
-
   let rows = `
     <div class="detail-row"><span class="detail-icon">📅</span><span class="detail-label">Fecha</span><span class="detail-value">${formatDate(e.fecha)}</span></div>
     <div class="detail-row"><span class="detail-icon">🏷️</span><span class="detail-label">Tipo</span><span class="detail-value">${typeEmoji(e.tipo)} ${e.tipo}</span></div>
@@ -474,32 +658,33 @@ async function openDetail(id) {
   if (e.seccion) rows+=`<div class="detail-row"><span class="detail-icon">🪑</span><span class="detail-label">Sección</span><span class="detail-value">${e.seccion}</span></div>`;
   if (e.notas) rows+=`<div class="detail-row"><span class="detail-icon">📝</span><span class="detail-label">Notas</span><span class="detail-value">${e.notas}</span></div>`;
   document.getElementById('detail-rows').innerHTML = rows;
-
   renderStars(0);
   document.getElementById('review-autor').value='';
   document.getElementById('review-comentario').value='';
   await loadReviews(id);
-
   document.getElementById('detail-view').classList.remove('hidden');
   document.getElementById('main-view').style.display='none';
+  document.getElementById('cal-view').classList.add('hidden');
 }
 
 function closeDetail() {
   document.getElementById('detail-view').classList.add('hidden');
-  document.getElementById('main-view').style.display='';
+  if (currentTab==='calendario') {
+    document.getElementById('cal-view').classList.remove('hidden');
+  } else {
+    document.getElementById('main-view').style.display='';
+  }
 }
 
 async function loadReviews(id) {
   try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/resenas?evento_id=eq.${id}&order=fecha.desc`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
-    const reviews = await res.json();
+    const reviews = await supaFetch(`resenas?evento_id=eq.${id}&order=fecha.desc`);
     const el = document.getElementById('reviews-list');
     if (!reviews.length){el.innerHTML='<div class="empty-reviews">Aún no hay reseñas. ¡Sé el primero!</div>';return;}
-    el.innerHTML = reviews.map(rv=>`
-      <div class="review-item">
-        <div class="review-author"><span>${rv.autor}</span><span class="review-stars">${'★'.repeat(rv.calificacion||0)}${'☆'.repeat(5-(rv.calificacion||0))}</span></div>
-        <div class="review-text">${rv.comentario||''}</div>
-      </div>`).join('');
+    el.innerHTML=reviews.map(rv=>`<div class="review-item">
+      <div class="review-author"><span>${rv.autor}</span><span class="review-stars">${'★'.repeat(rv.calificacion||0)}${'☆'.repeat(5-(rv.calificacion||0))}</span></div>
+      <div class="review-text">${rv.comentario||''}</div>
+    </div>`).join('');
   } catch {}
 }
 
@@ -507,12 +692,12 @@ function renderStars(n) { document.querySelectorAll('#stars-input .star').forEac
 function setStar(n) { currentStars=n; renderStars(n); }
 
 async function submitReview() {
-  const autor = document.getElementById('review-autor').value.trim();
-  const comentario = document.getElementById('review-comentario').value.trim();
+  const autor=document.getElementById('review-autor').value.trim();
+  const comentario=document.getElementById('review-comentario').value.trim();
   if (!autor){showToast('Escribe tu nombre',true);return;}
   if (!currentStars){showToast('Selecciona una calificación',true);return;}
   try {
-    await api('POST','resenas',{evento_id:currentEventoId,autor,calificacion:currentStars,comentario});
+    await supaFetch('resenas',{method:'POST',headers:{'Prefer':'return=representation'},body:JSON.stringify({evento_id:currentEventoId,autor,calificacion:currentStars,comentario})});
     showToast('Reseña publicada ✓');
     document.getElementById('review-autor').value='';
     document.getElementById('review-comentario').value='';
@@ -537,7 +722,7 @@ function notifyAttendees() {
 }
 
 function openAdd() {
-  ['f-nombre','f-rival','f-venue','f-asistentes','f-notas','f-seccion','f-fecha'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  ['f-nombre','f-rival','f-venue','f-asistentes','f-notas','f-seccion','f-fecha'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.querySelectorAll('.tipo-btn').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.tipo-btn')[0].classList.add('active');
   document.querySelectorAll('.group-btn').forEach(b=>b.classList.remove('active'));
@@ -555,9 +740,8 @@ function setTipo(t,el) {
   formTipo=t;
   document.querySelectorAll('.tipo-btn').forEach(b=>b.classList.remove('active'));
   if(el) el.classList.add('active');
-  const isS=t!=='Concierto';
-  document.getElementById('f-rival-group').classList.toggle('hidden',!isS);
-  document.getElementById('f-seccion-group').classList.toggle('hidden',!isS);
+  document.getElementById('f-rival-group').classList.toggle('hidden',t==='Concierto');
+  document.getElementById('f-seccion-group').classList.toggle('hidden',t==='Concierto');
   document.getElementById('submit-btn').textContent=`Guardar evento ${typeEmoji(t)}`;
 }
 
@@ -572,20 +756,21 @@ function setTab(t,el) {
   currentStatFilter=null;
   document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
   if(el) el.classList.add('active');
-  renderEventos();
+  document.getElementById('main-view').style.display = t==='calendario'?'none':'';
+  document.getElementById('cal-view').classList.toggle('hidden', t!=='calendario');
+  if (t==='calendario') { initCal(); }
+  else { renderEventos(); }
 }
 
 async function submitEvento() {
-  const nombre = document.getElementById('f-nombre').value.trim();
-  const fecha = document.getElementById('f-fecha').value;
+  const nombre=document.getElementById('f-nombre').value.trim();
+  const fecha=document.getElementById('f-fecha').value;
   if (!nombre||!fecha){showToast('Nombre y fecha son obligatorios',true);return;}
-
   showToast('Buscando imagen...');
-  let imagen_url = formTipo==='Concierto' ? await getArtistImage(nombre)||'' : await getTeamImage(nombre)||'';
-
+  const imagen_url = formTipo==='Concierto' ? await getArtistImage(nombre)||'' : await getTeamImage(nombre)||'';
   try {
-    await api('POST','eventos',{
-      nombre, tipo:formTipo, fecha,
+    await supaFetch('eventos',{method:'POST',headers:{'Prefer':'return=representation'},body:JSON.stringify({
+      nombre,tipo:formTipo,fecha,
       venue:document.getElementById('f-venue').value.trim(),
       grupo:formGrupo,
       asistentes:document.getElementById('f-asistentes').value.trim(),
@@ -593,20 +778,21 @@ async function submitEvento() {
       rival:document.getElementById('f-rival').value.trim(),
       seccion:document.getElementById('f-seccion').value.trim(),
       imagen_url
-    });
+    })});
     showToast('Evento agregado '+typeEmoji(formTipo));
     closeAdd();
     await loadEventos();
+    if (currentTab==='calendario') renderCal();
   } catch { showToast('Error al guardar',true); }
 }
 
 function showToast(msg,isError) {
   const t=document.getElementById('toast');
-  t.textContent=msg;
-  t.className=`toast${isError?' error':''}`;
+  t.textContent=msg; t.className=`toast${isError?' error':''}`;
   setTimeout(()=>t.classList.add('hidden'),3000);
 }
 
+updateNotifIcon();
 loadEventos();
 </script>
 
@@ -615,9 +801,9 @@ loadEventos();
     <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
     <span>Inicio</span>
   </div>
-  <div class="nav-item" onclick="setTab('proximos',this)">
+  <div class="nav-item" onclick="setTab('calendario',this)">
     <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-    <span>Próximos</span>
+    <span>Calendario</span>
   </div>
   <div class="nav-item" onclick="openAdd()">
     <div class="nav-fab">
