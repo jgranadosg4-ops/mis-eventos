@@ -4,7 +4,6 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Mis Eventos</title>
-<link rel="manifest" href="/manifest.json"/>
 <meta name="theme-color" content="#1a1a2e"/>
 <link rel="apple-touch-icon" href="/CHiqui.png"/>
 <style>
@@ -25,13 +24,12 @@
   .tab { padding: 10px 16px; font-size: 13px; color: var(--text2); cursor: pointer; white-space: nowrap; border-bottom: 2px solid transparent; }
   .tab.active { color: var(--purple); border-bottom-color: var(--purple); }
 
-  .filters { display: flex; gap: 8px; padding: 12px 16px; overflow-x: auto; background: var(--bg); }
-  .chip { padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 500; border: 1px solid var(--border); background: var(--bg2); color: var(--text2); cursor: pointer; white-space: nowrap; }
-  .chip.active { background: var(--purple); color: #fff; border-color: var(--purple); }
-
-  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 0 16px 12px; }
-  .stat { background: var(--bg2); border-radius: 10px; padding: 10px; text-align: center; border: 1px solid var(--border); }
-  .stat-num { font-size: 20px; font-weight: 500; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 12px 16px; }
+  .stat { background: var(--bg2); border-radius: 10px; padding: 10px; text-align: center; border: 1px solid var(--border); cursor: pointer; transition: border-color 0.2s; }
+  .stat:hover { border-color: var(--purple); }
+  .stat.active-filter { border-color: var(--purple); background: rgba(127,119,221,0.15); }
+  .stat-emoji { font-size: 16px; }
+  .stat-num { font-size: 20px; font-weight: 500; margin-top: 2px; }
   .stat-label { font-size: 10px; color: var(--text2); margin-top: 2px; }
 
   .section-label { font-size: 11px; font-weight: 500; color: var(--text2); padding: 8px 16px 4px; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px; }
@@ -49,7 +47,7 @@
   .ecard-date .mon { font-size: 9px; color: var(--purple); font-weight: 500; }
   .ecard-date.sports .mon { color: var(--teal); }
   .ecard-info { flex: 1; min-width: 0; }
-  .ecard-name { font-size: 15px; font-weight: 500; display: flex; align-items: center; gap: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ecard-name { font-size: 15px; font-weight: 500; display: flex; align-items: center; gap: 5px; }
   .ecard-sub { font-size: 12px; color: var(--text2); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .ecard-badges { display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap; align-items: center; }
   .badge { padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 500; }
@@ -64,9 +62,8 @@
   .countdown.soon { color: var(--amber); }
   .countdown.far { color: var(--text2); }
 
-  /* FEATURED — más compacta */
-  .featured { background: var(--bg2); border: 1px solid var(--purple); border-radius: 14px; margin: 0 16px 4px; overflow: hidden; cursor: pointer; display: flex; gap: 0; }
-  .featured-img-side { width: 90px; min-width: 90px; background: linear-gradient(135deg, #2d1a4e, #1a1a2e); display: flex; align-items: center; justify-content: center; font-size: 36px; }
+  .featured { background: var(--bg2); border: 1px solid var(--purple); border-radius: 14px; margin: 0 16px 4px; overflow: hidden; cursor: pointer; display: flex; }
+  .featured-img-side { width: 90px; min-width: 90px; background: linear-gradient(135deg, #2d1a4e, #1a1a2e); display: flex; align-items: center; justify-content: center; font-size: 36px; overflow: hidden; }
   .featured-img-side img { width: 90px; height: 100%; object-fit: cover; display: block; }
   .featured-body { padding: 12px 14px; flex: 1; min-width: 0; }
   .featured-tag { font-size: 10px; color: var(--purple); font-weight: 500; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
@@ -151,19 +148,22 @@
 </div>
 
 <div id="main-view">
-  <div class="filters">
-    <div class="chip active" onclick="setFilter('todos',this)">Todos</div>
-    <div class="chip" onclick="setFilter('Concierto',this)">🎵 Música</div>
-    <div class="chip" onclick="setFilter('Beisbol',this)">⚾ Beisbol</div>
-    <div class="chip" onclick="setFilter('Basketball',this)">🏀 Basketball</div>
-    <div class="chip" onclick="setFilter('Personal',this)">🎧 Personal</div>
-    <div class="chip" onclick="setFilter('Familia',this)">👨‍👩‍👧 Familia</div>
-    <div class="chip" onclick="setFilter('Amigos',this)">🎉 Amigos</div>
-  </div>
   <div class="stats">
-    <div class="stat"><div class="stat-num">🎵</div><div class="stat-num" id="stat-conciertos">0</div><div class="stat-label">conciertos</div></div>
-    <div class="stat"><div class="stat-num">⚾🏀</div><div class="stat-num" id="stat-deportes">0</div><div class="stat-label">juegos</div></div>
-    <div class="stat"><div class="stat-num" id="stat-total" style="color:var(--amber)">0</div><div class="stat-label">total vividos</div></div>
+    <div class="stat" id="stat-conciertos-box" onclick="toggleStatFilter('Concierto')">
+      <div class="stat-emoji">🎵</div>
+      <div class="stat-num" id="stat-conciertos">0</div>
+      <div class="stat-label">conciertos</div>
+    </div>
+    <div class="stat" id="stat-beisbol-box" onclick="toggleStatFilter('Beisbol')">
+      <div class="stat-emoji">⚾</div>
+      <div class="stat-num" id="stat-beisbol">0</div>
+      <div class="stat-label">beisbol</div>
+    </div>
+    <div class="stat" id="stat-basketball-box" onclick="toggleStatFilter('Basketball')">
+      <div class="stat-emoji">🏀</div>
+      <div class="stat-num" id="stat-basketball">0</div>
+      <div class="stat-label">basketball</div>
+    </div>
   </div>
   <div id="events-container" class="pb100"><div class="loading">Cargando eventos...</div></div>
 </div>
@@ -202,7 +202,7 @@
 <div class="modal-overlay hidden" id="add-modal">
   <div class="modal">
     <div class="modal-handle"></div>
-    <div class="modal-title" id="modal-title">Nuevo evento</div>
+    <div class="modal-title">Nuevo evento</div>
     <div class="form-group">
       <label class="form-label">Tipo de evento</label>
       <div class="tipo-btns">
@@ -262,7 +262,7 @@ const SPOTIFY_CLIENT_SECRET = 'TU_SPOTIFY_CLIENT_SECRET';
 
 let eventos = [], currentEventoId = null, currentStars = 0;
 let formTipo = 'Concierto', formGrupo = 'Personal';
-let currentTab = 'todos', currentFilter = 'todos';
+let currentTab = 'todos', currentStatFilter = null;
 let spotifyToken = null;
 
 const MONTHS = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
@@ -271,13 +271,12 @@ function daysUntil(dateStr) {
   const today = new Date();
   const localToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
   const p = dateStr.split('-');
-  const d = new Date(parseInt(p[0]), parseInt(p[1])-1, parseInt(p[2]));
-  return Math.round((d - localToday) / 86400000);
+  return Math.round((new Date(+p[0],+p[1]-1,+p[2]) - localToday) / 86400000);
 }
 
 function formatDate(dateStr) {
   const p = dateStr.split('-');
-  const d = new Date(parseInt(p[0]), parseInt(p[1])-1, parseInt(p[2]));
+  const d = new Date(+p[0],+p[1]-1,+p[2]);
   return `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
 }
 
@@ -291,8 +290,8 @@ function countdownHtml(dateStr) {
 }
 
 function badgeHtml(grupo) {
-  const map = { Personal:'personal', Familia:'familia', Amigos:'amigos' };
-  const emoji = { Personal:'🎧', Familia:'👨‍👩‍👧', Amigos:'🎉' };
+  const map = {Personal:'personal',Familia:'familia',Amigos:'amigos'};
+  const emoji = {Personal:'🎧',Familia:'👨‍👩‍👧',Amigos:'🎉'};
   return `<span class="badge ${map[grupo]||'personal'}">${emoji[grupo]||''} ${grupo}</span>`;
 }
 
@@ -303,7 +302,7 @@ function typeEmoji(tipo) {
 async function api(method, path, data) {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
     method,
-    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': method==='POST'?'return=representation':'return=minimal' },
+    headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json','Prefer':method==='POST'?'return=representation':'return=minimal'},
     body: data ? JSON.stringify(data) : undefined
   });
   if (!res.ok) throw new Error(await res.text());
@@ -313,13 +312,8 @@ async function api(method, path, data) {
 async function getSpotifyToken() {
   if (spotifyToken) return spotifyToken;
   try {
-    const r = await fetch('https://accounts.spotify.com/api/token', {
-      method:'POST',
-      headers:{'Content-Type':'application/x-www-form-urlencoded','Authorization':'Basic '+btoa(SPOTIFY_CLIENT_ID+':'+SPOTIFY_CLIENT_SECRET)},
-      body:'grant_type=client_credentials'
-    });
-    const d = await r.json();
-    spotifyToken = d.access_token;
+    const r = await fetch('https://accounts.spotify.com/api/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded','Authorization':'Basic '+btoa(SPOTIFY_CLIENT_ID+':'+SPOTIFY_CLIENT_SECRET)},body:'grant_type=client_credentials'});
+    spotifyToken = (await r.json()).access_token;
     return spotifyToken;
   } catch { return null; }
 }
@@ -329,55 +323,69 @@ async function getArtistImage(name) {
     const token = await getSpotifyToken();
     if (!token) return null;
     const r = await fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(name)}&type=artist&limit=1`,{headers:{'Authorization':`Bearer ${token}`}});
-    const d = await r.json();
-    return d.artists?.items?.[0]?.images?.[0]?.url||null;
+    return (await r.json()).artists?.items?.[0]?.images?.[0]?.url||null;
   } catch { return null; }
 }
 
 async function getTeamImage(name) {
   try {
     const r = await fetch(`https://www.thesportsdb.com/api/v1/json/3/searchteams.php?t=${encodeURIComponent(name)}`);
-    const d = await r.json();
-    return d.teams?.[0]?.strTeamBadge||null;
+    return (await r.json()).teams?.[0]?.strTeamBadge||null;
   } catch { return null; }
 }
 
 async function loadEventos() {
   try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/eventos?order=fecha.asc`, {
-      headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}
-    });
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/eventos?order=fecha.asc`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
     eventos = await res.json();
     renderEventos();
   } catch {
-    document.getElementById('events-container').innerHTML = '<div class="loading">Error al cargar eventos.</div>';
+    document.getElementById('events-container').innerHTML='<div class="loading">Error al cargar eventos.</div>';
   }
 }
 
+function getTabFiltered() {
+  let base = [...eventos];
+  if (currentTab==='proximos') base = base.filter(e=>daysUntil(e.fecha)>=0);
+  else if (currentTab==='pasados'||currentTab==='historial') base = base.filter(e=>daysUntil(e.fecha)<0);
+  if (currentStatFilter) base = base.filter(e=>e.tipo===currentStatFilter);
+  return base;
+}
+
 function updateStats() {
-  const past = eventos.filter(e => daysUntil(e.fecha) < 0);
-  document.getElementById('stat-conciertos').textContent = past.filter(e=>e.tipo==='Concierto').length;
-  document.getElementById('stat-deportes').textContent = past.filter(e=>e.tipo!=='Concierto').length;
-  document.getElementById('stat-total').textContent = past.length;
+  let base = [...eventos];
+  if (currentTab==='proximos') base = base.filter(e=>daysUntil(e.fecha)>=0);
+  else if (currentTab==='pasados'||currentTab==='historial') base = base.filter(e=>daysUntil(e.fecha)<0);
+
+  document.getElementById('stat-conciertos').textContent = base.filter(e=>e.tipo==='Concierto').length;
+  document.getElementById('stat-beisbol').textContent = base.filter(e=>e.tipo==='Beisbol').length;
+  document.getElementById('stat-basketball').textContent = base.filter(e=>e.tipo==='Basketball').length;
+
+  ['Concierto','Beisbol','Basketball'].forEach(t => {
+    const box = document.getElementById(`stat-${t==='Concierto'?'conciertos':t.toLowerCase()}-box`);
+    if (box) box.classList.toggle('active-filter', currentStatFilter===t);
+  });
+
   const upcoming = eventos.filter(e=>daysUntil(e.fecha)>=0).length;
   document.getElementById('nav-sub').textContent = `${eventos.length} eventos · ${upcoming} próximos`;
 }
 
+function toggleStatFilter(tipo) {
+  currentStatFilter = currentStatFilter===tipo ? null : tipo;
+  renderEventos();
+}
+
 function renderEventos() {
   updateStats();
-  let filtered = eventos;
-  if (currentFilter !== 'todos') {
-    filtered = eventos.filter(e => e.tipo===currentFilter || e.grupo===currentFilter);
-  }
-  if (currentTab==='proximos') filtered = filtered.filter(e=>daysUntil(e.fecha)>=0);
-  if (currentTab==='pasados') filtered = filtered.filter(e=>daysUntil(e.fecha)<0);
+  const filtered = getTabFiltered();
+
   if (currentTab==='historial') { renderHistorial(filtered); return; }
 
   const upcoming = filtered.filter(e=>daysUntil(e.fecha)>=0).sort((a,b)=>a.fecha.localeCompare(b.fecha));
   const past = filtered.filter(e=>daysUntil(e.fecha)<0).sort((a,b)=>b.fecha.localeCompare(a.fecha));
 
   let html = '';
-  if (filtered.length===0) {
+  if (!filtered.length) {
     html = `<div class="empty-state"><div class="emoji">🎤</div><p>No hay eventos aquí todavía.<br>¡Agrega el primero!</p></div>`;
   } else {
     if (upcoming.length>0) {
@@ -392,7 +400,7 @@ function renderEventos() {
         </div>
       </div>`;
       if (upcoming.length>1) {
-        html += `<div class="section-label"><div class="section-dot"></div>Próximos (${upcoming.length})</div><div class="cards">`;
+        html += `<div class="section-label" style="margin-top:8px"><div class="section-dot"></div>Próximos (${upcoming.length})</div><div class="cards">`;
         upcoming.slice(1).forEach(e=>{ html+=cardHtml(e,false); });
         html += '</div>';
       }
@@ -408,7 +416,7 @@ function renderEventos() {
 
 function cardHtml(e, isPast) {
   const p = e.fecha.split('-');
-  const d = new Date(parseInt(p[0]),parseInt(p[1])-1,parseInt(p[2]));
+  const d = new Date(+p[0],+p[1]-1,+p[2]);
   const isS = e.tipo!=='Concierto';
   return `<div class="ecard" onclick="openDetail('${e.id}')" style="${isPast?'opacity:0.8':''}">
     <div class="ecard-body">
@@ -428,7 +436,7 @@ function cardHtml(e, isPast) {
         </div>
       </div>
       <div class="ecard-right">
-        ${!isPast?countdownHtml(e.fecha):`<span class="countdown far">${formatDate(e.fecha)}</span>`}
+        ${!isPast?countdownHtml(e.fecha):`<span class="countdown far" style="font-size:10px">${formatDate(e.fecha)}</span>`}
         ${e.asistentes?`<div style="font-size:10px;color:var(--text2);margin-top:3px">👥 ${e.asistentes.split(',').length}</div>`:''}
       </div>
     </div>
@@ -436,21 +444,15 @@ function cardHtml(e, isPast) {
 }
 
 function renderHistorial(filtered) {
-  const past = (filtered||eventos).filter(e=>daysUntil(e.fecha)<0).sort((a,b)=>b.fecha.localeCompare(a.fecha));
-  let html = `<div style="padding:12px 16px 8px;font-size:20px;font-weight:500;">📊 Historial</div>
-    <div class="stats" style="margin-bottom:8px;">
-      <div class="stat"><div class="stat-num" style="color:var(--purple)">${past.length}</div><div class="stat-label">total</div></div>
-      <div class="stat"><div class="stat-num">${past.filter(e=>e.tipo==='Concierto').length}</div><div class="stat-label">conciertos</div></div>
-      <div class="stat"><div class="stat-num">${past.filter(e=>e.tipo!=='Concierto').length}</div><div class="stat-label">juegos</div></div>
-    </div>`;
+  const past = filtered.sort((a,b)=>b.fecha.localeCompare(a.fecha));
+  let html = `<div style="padding:12px 16px 0;font-size:20px;font-weight:500;">📊 Historial</div>`;
   if (!past.length) html += `<div class="empty-state"><div class="emoji">🎟️</div><p>Aún no tienes eventos pasados</p></div>`;
-  else html += `<div class="cards">${past.map(e=>cardHtml(e,true)).join('')}</div>`;
+  else html += `<div class="cards" style="margin-top:8px;">${past.map(e=>cardHtml(e,true)).join('')}</div>`;
   document.getElementById('events-container').innerHTML = html;
 }
 
 async function openDetail(id) {
-  currentEventoId = id;
-  currentStars = 0;
+  currentEventoId = id; currentStars = 0;
   const e = eventos.find(x=>x.id===id);
   if (!e) return;
 
@@ -531,45 +533,44 @@ async function deleteEvento() {
 
 function notifyAttendees() {
   const e = eventos.find(x=>x.id===currentEventoId);
-  showToast(`Notificación registrada para: ${e?.asistentes||'nadie'}`);
+  showToast(`Notificación registrada: ${e?.asistentes||'sin asistentes'}`);
 }
 
 function openAdd() {
-  document.getElementById('modal-title').textContent='Nuevo evento';
   ['f-nombre','f-rival','f-venue','f-asistentes','f-notas','f-seccion','f-fecha'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
-  setTipo('Concierto', document.querySelectorAll('.tipo-btn')[0]);
-  setGrupo('Personal', document.querySelectorAll('.group-btn')[0]);
+  document.querySelectorAll('.tipo-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tipo-btn')[0].classList.add('active');
+  document.querySelectorAll('.group-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.group-btn')[0].classList.add('active');
+  formTipo='Concierto'; formGrupo='Personal';
+  document.getElementById('f-rival-group').classList.add('hidden');
+  document.getElementById('f-seccion-group').classList.add('hidden');
+  document.getElementById('submit-btn').textContent='Guardar evento 🎵';
   document.getElementById('add-modal').classList.remove('hidden');
 }
 
 function closeAdd() { document.getElementById('add-modal').classList.add('hidden'); }
 
-function setTipo(t, el) {
-  formTipo = t;
+function setTipo(t,el) {
+  formTipo=t;
   document.querySelectorAll('.tipo-btn').forEach(b=>b.classList.remove('active'));
   if(el) el.classList.add('active');
-  const isS = t!=='Concierto';
+  const isS=t!=='Concierto';
   document.getElementById('f-rival-group').classList.toggle('hidden',!isS);
   document.getElementById('f-seccion-group').classList.toggle('hidden',!isS);
-  document.getElementById('submit-btn').textContent = `Guardar evento ${typeEmoji(t)}`;
+  document.getElementById('submit-btn').textContent=`Guardar evento ${typeEmoji(t)}`;
 }
 
-function setGrupo(g, el) {
-  formGrupo = g;
+function setGrupo(g,el) {
+  formGrupo=g;
   document.querySelectorAll('.group-btn').forEach(b=>b.classList.remove('active'));
   if(el) el.classList.add('active');
 }
 
-function setTab(t, el) {
-  currentTab = t;
+function setTab(t,el) {
+  currentTab=t;
+  currentStatFilter=null;
   document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
-  if(el) el.classList.add('active');
-  renderEventos();
-}
-
-function setFilter(f, el) {
-  currentFilter = f;
-  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
   if(el) el.classList.add('active');
   renderEventos();
 }
@@ -580,23 +581,19 @@ async function submitEvento() {
   if (!nombre||!fecha){showToast('Nombre y fecha son obligatorios',true);return;}
 
   showToast('Buscando imagen...');
-  let imagen_url = '';
-  if (formTipo==='Concierto') imagen_url = await getArtistImage(nombre)||'';
-  else imagen_url = await getTeamImage(nombre)||'';
-
-  const data = {
-    nombre, tipo:formTipo, fecha,
-    venue: document.getElementById('f-venue').value.trim(),
-    grupo: formGrupo,
-    asistentes: document.getElementById('f-asistentes').value.trim(),
-    notas: document.getElementById('f-notas').value.trim(),
-    rival: document.getElementById('f-rival').value.trim(),
-    seccion: document.getElementById('f-seccion').value.trim(),
-    imagen_url
-  };
+  let imagen_url = formTipo==='Concierto' ? await getArtistImage(nombre)||'' : await getTeamImage(nombre)||'';
 
   try {
-    await api('POST','eventos',data);
+    await api('POST','eventos',{
+      nombre, tipo:formTipo, fecha,
+      venue:document.getElementById('f-venue').value.trim(),
+      grupo:formGrupo,
+      asistentes:document.getElementById('f-asistentes').value.trim(),
+      notas:document.getElementById('f-notas').value.trim(),
+      rival:document.getElementById('f-rival').value.trim(),
+      seccion:document.getElementById('f-seccion').value.trim(),
+      imagen_url
+    });
     showToast('Evento agregado '+typeEmoji(formTipo));
     closeAdd();
     await loadEventos();
@@ -604,7 +601,7 @@ async function submitEvento() {
 }
 
 function showToast(msg,isError) {
-  const t = document.getElementById('toast');
+  const t=document.getElementById('toast');
   t.textContent=msg;
   t.className=`toast${isError?' error':''}`;
   setTimeout(()=>t.classList.add('hidden'),3000);
