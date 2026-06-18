@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Mis Eventos</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0f0f1a;
+    --bg2: #1a1a2e;
+    --bg3: #222238;
+    --card: #1e1e32;
+    --border: rgba(255,255,255,0.08);
+    --text: #f0f0f0;
+    --text2: #9999bb;
+    --purple: #7F77DD;
+    --purple-light: #EEEDFE;
+    --purple-dark: #534AB7;
+    --teal: #1D9E75;
+    --teal-light: #E1F5EE;
+    --pink: #D4537E;
+    --pink-light: #FBEAF0;
+    --amber: #EF9F27;
+    --red: #E24B4A;
+    --green: #3B6D11;
+  }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; }
+
+  /* NAV */
+  .nav { background: var(--bg2); padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+  .nav-title { font-size: 18px; font-weight: 500; }
+  .nav-sub { font-size: 12px; color: var(--text2); margin-top: 1px; }
+  .add-btn { background: var(--purple); color: #fff; border: none; border-radius: 8px; padding: 8px 16px; font-size: 13px; font-weight: 500; cursor: pointer; }
+
+  /* TABS */
+  .tabs { display: flex; gap: 0; background: var(--bg2); border-bottom: 1px solid var(--border); overflow-x: auto; }
+  .tab { padding: 10px 16px; font-size: 13px; color: var(--text2); cursor: pointer; white-space: nowrap; border-bottom: 2px solid transparent; }
+  .tab.active { color: var(--purple); border-bottom-color: var(--purple); }
+
+  /* FILTERS */
+  .filters { display: flex; gap: 8px; padding: 12px 16px; overflow-x: auto; background: var(--bg); }
+  .chip { padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 500; border: 1px solid var(--border); background: var(--bg2); color: var(--text2); cursor: pointer; white-space: nowrap; }
+  .chip.active { background: var(--purple); color: #fff; border-color: var(--purple); }
+  .chip.music { background: rgba(127,119,221,0.15); color: var(--purple); border-color: var(--purple); }
+  .chip.sports { background: rgba(29,158,117,0.15); color: var(--teal); border-color: var(--teal); }
+
+  /* STATS */
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 0 16px 12px; }
+  .stat { background: var(--bg2); border-radius: 10px; padding: 10px; text-align: center; border: 1px solid var(--border); }
+  .stat-num { font-size: 20px; font-weight: 500; }
+  .stat-label { font-size: 10px; color: var(--text2); margin-top: 2px; }
+
+  /* SECTION */
+  .section-label { font-size: 11px; font-weight: 500; color: var(--text2); padding: 8px 16px 4px; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px; }
+  .section-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--purple); }
+  .section-dot.past { background: var(--text2); }
+
+  /* CARDS */
+  .cards { display: flex; flex-direction: column; gap: 8px; padding: 0 16px 100px; }
+  .ecard { background: var(--card); border-radius: 14px; border: 1px solid var(--border); overflow: hidden; cursor: pointer; transition: border-color 0.2s; }
+  .ecard:hover { border-color: var(--purple); }
+  .ecard-img { width: 100%; height: 120px; object-fit: cover; display: block; background: var(--bg3); position: relative; }
+  .ecard-img-placeholder { width: 100%; height: 120px; display: flex; align-items: center; justify-content: center; font-size: 40px; }
+  .ecard-img-overlay { position: absolute; bottom: 0; left: 0; right: 0; height: 60px; background: linear-gradient(transparent, var(--card)); }
+  .ecard-body { padding: 10px 12px; display: flex; gap: 10px; align-items: flex-start; }
+  .ecard-date { min-width: 42px; background: rgba(127,119,221,0.15); border-radius: 8px; padding: 6px; text-align: center; }
+  .ecard-date.sports { background: rgba(29,158,117,0.15); }
+  .ecard-date .day { font-size: 18px; font-weight: 500; color: var(--purple); line-height: 1; }
+  .ecard-date.sports .day { color: var(--teal); }
+  .ecard-date .mon { font-size: 9px; color: var(--purple); font-weight: 500; }
+  .ecard-date.sports .mon { color: var(--teal); }
+  .ecard-info { flex: 1; min-width: 0; }
+  .ecard-name { font-size: 15px; font-weight: 500; display: flex; align-items: center; gap: 6px; }
+  .ecard-sub { font-size: 12px; color: var(--text2); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ecard-badges { display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap; align-items: center; }
+  .badge { padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 500; }
+  .badge.personal { background: rgba(127,119,221,0.2); color: var(--purple); }
+  .badge.familia { background: rgba(212,83,126,0.2); color: var(--pink); }
+  .badge.amigos { background: rgba(29,158,117,0.2); color: var(--teal); }
+  .badge.win { background: rgba(59,109,17,0.3); color: #7acc3a; }
+  .badge.loss { background: rgba(226,75,74,0.2); color: var(--red); }
+  .ecard-right { text-align: right; flex-shrink: 0; }
+  .countdown { font-size: 11px; font-weight: 500; }
+  .countdown.fire { color: #ff7043; }
+  .countdown.soon { color: var(--amber); }
+  .countdown.far { color: var(--text2); }
+  .attendees { font-size: 10px; color: var(--text2); margin-top: 3px; }
+  .rating-small { font-size: 11px; color: var(--amber); margin-top: 3px; }
+
+  /* FEATURED */
+  .featured { background: var(--bg2); border: 1px solid var(--purple); border-radius: 14px; margin: 0 16px 8px; overflow: hidden; cursor: pointer; }
+  .featured-img { width: 100%; height: 160px; object-fit: cover; display: block; background: var(--bg3); }
+  .featured-img-placeholder { width: 100%; height: 160px; display: flex; align-items: center; justify-content: center; font-size: 56px; background: linear-gradient(135deg, #2d1a4e, #1a1a2e); }
+  .featured-body { padding: 12px 14px; }
+  .featured-tag { font-size: 10px; color: var(--purple); font-weight: 500; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+  .featured-name { font-size: 20px; font-weight: 500; margin-bottom: 2px; }
+  .featured-sub { font-size: 13px; color: var(--text2); }
+  .featured-badges { display: flex; gap: 6px; margin-top: 8px; align-items: center; }
+
+  /* BOTTOM NAV */
+  .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg2); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 8px 0 12px; z-index: 100; }
+  .nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; }
+  .nav-item svg { width: 22px; height: 22px; stroke: var(--text2); fill: none; stroke-width: 1.5; }
+  .nav-item.active svg { stroke: var(--purple); }
+  .nav-item span { font-size: 9px; color: var(--text2); }
+  .nav-item.active span { color: var(--purple); }
+  .nav-fab { width: 44px; height: 44px; border-radius: 50%; background: var(--purple); display: flex; align-items: center; justify-content: center; margin-top: -10px; }
+  .nav-fab svg { stroke: #fff; }
+
+  /* MODAL */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 200; display: flex; align-items: flex-end; }
+  .modal { background: var(--bg2); border-radius: 20px 20px 0 0; width: 100%; max-height: 90vh; overflow-y: auto; padding: 20px 16px 40px; }
+  .modal-handle { width: 40px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 16px; }
+  .modal-title { font-size: 18px; font-weight: 500; margin-bottom: 16px; }
+  .form-group { margin-bottom: 14px; }
+  .form-label { font-size: 12px; color: var(--text2); margin-bottom: 5px; display: block; font-weight: 500; }
+  .form-input { width: 100%; background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; color: var(--text); font-size: 14px; outline: none; }
+  .form-input:focus { border-color: var(--purple); }
+  .group-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+  .group-btn { padding: 8px 14px; border-radius: 20px; font-size: 12px; cursor: pointer; border: 1px solid var(--border); background: var(--bg3); color: var(--text2); font-weight: 500; }
+  .group-btn.active { border-color: var(--purple); background: rgba(127,119,221,0.2); color: var(--purple); }
+  .tipo-btns { display: flex; gap: 8px; }
+  .tipo-btn { flex: 1; padding: 8px; border-radius: 8px; font-size: 13px; cursor: pointer; border: 1px solid var(--border); background: var(--bg3); color: var(--text2); text-align: center; }
+  .tipo-btn.active { border-color: var(--purple); background: rgba(127,119,221,0.2); color: var(--purple); }
+  .submit-btn { width: 100%; padding: 12px; border-radius: 10px; border: none; background: var(--purple); color: #fff; font-size: 15px; font-weight: 500; cursor: pointer; margin-top: 8px; }
+  .cancel-btn { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid var(--border); background: none; color: var(--text2); font-size: 14px; cursor: pointer; margin-top: 8px; }
+
+  /* DETAIL */
+  .detail { position: fixed; inset: 0; background: var(--bg); z-index: 200; overflow-y: auto; }
+  .detail-hero { width: 100%; height: 200px; object-fit: cover; display: block; background: var(--bg2); position: relative; }
+  .detail-hero-placeholder { width: 100%; height: 200px; display: flex; align-items: center; justify-content: center; font-size: 64px; background: linear-gradient(135deg, #2d1a4e, #1a1a2e); }
+  .detail-back { position: absolute; top: 14px; left: 14px; background: rgba(0,0,0,0.5); border: none; border-radius: 50%; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #fff; font-size: 18px; }
+  .detail-body { padding: 16px; }
+  .detail-name { font-size: 22px; font-weight: 500; margin-bottom: 4px; }
+  .detail-sub { font-size: 14px; color: var(--text2); margin-bottom: 12px; }
+  .detail-row { display: flex; gap: 8px; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid var(--border); }
+  .detail-row:last-child { border: none; }
+  .detail-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+  .detail-label { font-size: 12px; color: var(--text2); min-width: 80px; }
+  .detail-value { font-size: 13px; color: var(--text); }
+  .stars-row { display: flex; gap: 4px; }
+  .star { font-size: 22px; cursor: pointer; color: var(--border); }
+  .star.on { color: var(--amber); }
+  .review-form { background: var(--bg2); border-radius: 10px; padding: 12px; margin-top: 12px; }
+  .review-item { background: var(--bg2); border-radius: 10px; padding: 12px; margin-top: 8px; }
+  .review-author { font-size: 12px; font-weight: 500; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+  .review-text { font-size: 13px; color: var(--text2); line-height: 1.5; }
+  .review-stars { color: var(--amber); font-size: 12px; }
+  .section-header { font-size: 15px; font-weight: 500; margin: 16px 0 8px; }
+  .empty-reviews { font-size: 13px; color: var(--text2); text-align: center; padding: 16px; }
+  .notify-btn { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg3); color: var(--text2); font-size: 13px; cursor: pointer; margin-top: 8px; }
+  .delete-btn { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid rgba(226,75,74,0.3); background: rgba(226,75,74,0.1); color: var(--red); font-size: 13px; cursor: pointer; margin-top: 8px; }
+  .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: var(--teal); color: #fff; padding: 10px 20px; border-radius: 10px; font-size: 13px; font-weight: 500; z-index: 999; white-space: nowrap; }
+  .toast.error { background: var(--red); }
+  .hidden { display: none !important; }
+  .loading { text-align: center; padding: 40px; color: var(--text2); font-size: 14px; }
+  .empty-state { text-align: center; padding: 60px 20px; color: var(--text2); }
+  .empty-state .emoji { font-size: 48px; margin-bottom: 12px; }
+  .empty-state p { font-size: 14px; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<div class="nav">
+  <div>
+    <div class="nav-title">🎵 Mis Eventos</div>
+    <div class="nav-sub" id="nav-sub">Cargando...</div>
+  </div>
+  <button class="add-btn" onclick="openAdd()">+ Nuevo</button>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab active" onclick="setTab('todos')">Todos</div>
+  <div class="tab" onclick="setTab('proximos')">Próximos</div>
+  <div class="tab" onclick="setTab('pasados')">Pasados</div>
+  <div class="tab" onclick="setTab('historial')">Historial</div>
+</div>
+
+<!-- MAIN -->
+<div id="main-view">
+  <div class="filters">
+    <div class="chip active" onclick="setFilter('todos')">Todos</div>
+    <div class="chip music" onclick="setFilter('Concierto')">🎵 Música</div>
+    <div class="chip sports" onclick="setFilter('Beisbol')">⚾ Beisbol</div>
+    <div class="chip sports" onclick="setFilter('Basketball')">🏀 Basketball</div>
+    <div class="chip" onclick="setFilter('Personal')">🎧 Personal</div>
+    <div class="chip" onclick="setFilter('Familia')">👨‍👩‍👧 Familia</div>
+    <div class="chip" onclick="setFilter('Amigos')">🎉 Amigos</div>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="stat-num">🎵</div><div class="stat-num" id="stat-conciertos">0</div><div class="stat-label">conciertos</div></div>
+    <div class="stat"><div class="stat-num">⚾</div><div class="stat-num" id="stat-deportes">0</div><div class="stat-label">juegos</div></div>
+    <div class="stat"><div class="stat-num" id="stat-total" style="color:var(--amber)">0</div><div class="stat-label">total vividos</div></div>
+  </div>
+  <div id="events-container"><div class="loading">Cargando eventos...</div></div>
+</div>
+
+<!-- DETAIL VIEW -->
+<div class="detail hidden" id="detail-view">
+  <div style="position:relative;">
+    <div id="detail-hero-img"></div>
+    <button class="detail-back" onclick="closeDetail()">←</button>
+  </div>
+  <div class="detail-body">
+    <div class="detail-name" id="detail-name"></div>
+    <div class="detail-sub" id="detail-sub"></div>
+    <div id="detail-rows"></div>
+    <div class="section-header">Reseñas</div>
+    <div class="review-form">
+      <div class="form-label">Tu calificación</div>
+      <div class="stars-row" id="stars-input">
+        <span class="star" onclick="setStar(1)">★</span>
+        <span class="star" onclick="setStar(2)">★</span>
+        <span class="star" onclick="setStar(3)">★</span>
+        <span class="star" onclick="setStar(4)">★</span>
+        <span class="star" onclick="setStar(5)">★</span>
+      </div>
+      <input class="form-input" style="margin-top:8px;" id="review-autor" placeholder="Tu nombre" />
+      <textarea class="form-input" style="margin-top:8px;resize:none;height:70px;" id="review-comentario" placeholder="¿Cómo estuvo?"></textarea>
+      <button class="submit-btn" style="margin-top:8px;" onclick="submitReview()">Publicar reseña</button>
+    </div>
+    <div id="reviews-list"></div>
+    <button class="notify-btn" onclick="notifyAttendees()">🔔 Notificar asistentes</button>
+    <button class="delete-btn" onclick="deleteEvento()">🗑️ Eliminar evento</button>
+  </div>
+</div>
+
+<!-- ADD MODAL -->
+<div class="modal-overlay hidden" id="add-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-title">Nuevo evento</div>
+    <div class="form-group">
+      <label class="form-label">Tipo de evento</label>
+      <div class="tipo-btns">
+        <div class="tipo-btn active" onclick="setTipo('Concierto')">🎵 Concierto</div>
+        <div class="tipo-btn" onclick="setTipo('Beisbol')">⚾ Beisbol</div>
+        <div class="tipo-btn" onclick="setTipo('Basketball')">🏀 Basketball</div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Nombre / Artista / Equipo *</label>
+      <input class="form-input" id="f-nombre" placeholder="Ej. Feid, Diablos Rojos..." />
+    </div>
+    <div class="form-group" id="f-rival-group" style="display:none;">
+      <label class="form-label">Rival</label>
+      <input class="form-input" id="f-rival" placeholder="Ej. Sultanes de Monterrey" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Venue / Estadio</label>
+      <input class="form-input" id="f-venue" placeholder="Ej. Foro Sol, Estadio Alfredo Harp" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Fecha *</label>
+      <input class="form-input" type="date" id="f-fecha" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">¿Con quién vas?</label>
+      <div class="group-btns">
+        <div class="group-btn active" onclick="setGrupo('Personal')">🎧 Personal</div>
+        <div class="group-btn" onclick="setGrupo('Familia')">👨‍👩‍👧 Familia</div>
+        <div class="group-btn" onclick="setGrupo('Amigos')">🎉 Amigos</div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Asistentes (separados por coma)</label>
+      <input class="form-input" id="f-asistentes" placeholder="Ej. Ana, Luis, Sofía" />
+    </div>
+    <div class="form-group" id="f-seccion-group" style="display:none;">
+      <label class="form-label">Sección / Asientos</label>
+      <input class="form-input" id="f-seccion" placeholder="Ej. Sol B12, Palco 4" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notas</label>
+      <input class="form-input" id="f-notas" placeholder="Ej. Puertas 7pm, llevar ID" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">URL de imagen (opcional)</label>
+      <input class="form-input" id="f-imagen" placeholder="https://..." />
+    </div>
+    <button class="submit-btn" onclick="submitEvento()">Guardar evento 🎵</button>
+    <button class="cancel-btn" onclick="closeAdd()">Cancelar</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast hidden" id="toast"></div>
+
+<script>
+const SUPABASE_URL = 'https://fcdolhvwlhhsfvebpzug.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_ae61QVnxB7wqf9hsbh02eQ_YJ_ufc67';
+const SPOTIFY_CLIENT_ID = 'TU_SPOTIFY_CLIENT_ID';
+const SPOTIFY_CLIENT_SECRET = 'TU_SPOTIFY_CLIENT_SECRET';
+
+let eventos = [];
+let currentFilter = 'todos';
+let currentTab = 'todos';
+let currentEventoId = null;
+let currentStars = 0;
+let editingId = null;
+let formTipo = 'Concierto';
+let formGrupo = 'Personal';
+let spotifyToken = null;
+
+const MONTHS = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+
+async function api(method, table, data, id) {
+  const url = `${SUPABASE_URL}/rest/v1/${table}${id ? `?id=eq.${id}` : ''}`;
+  const res = await fetch(url, {
+    method,
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'Content-Type': 'application/json',
+      'Prefer': method === 'POST' ? 'return=representation' : 'return=minimal'
+    },
+    body: data ? JSON.stringify(data) : undefined
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return method === 'DELETE' ? null : (res.status === 204 ? null : res.json());
+}
+
+async function getSpotifyToken() {
+  if (spotifyToken) return spotifyToken;
+  try {
+    const r = await fetch('https://accounts.spotify.com/api/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Authorization': 'Basic ' + btoa(SPOTIFY_CLIENT_ID + ':' + SPOTIFY_CLIENT_SECRET) },
+      body: 'grant_type=client_credentials'
+    });
+    const d = await r.json();
+    spotifyToken = d.access_token;
+    return spotifyToken;
+  } catch { return null; }
+}
+
+async function getArtistImage(name) {
+  try {
+    const token = await getSpotifyToken();
+    if (!token) return null;
+    const r = await fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(name)}&type=artist&limit=1`, { headers: { 'Authorization': `Bearer ${token}` } });
+    const d = await r.json();
+    return d.artists?.items?.[0]?.images?.[0]?.url || null;
+  } catch { return null; }
+}
+
+async function getTeamImage(name) {
+  try {
+    const r = await fetch(`https://www.thesportsdb.com/api/v1/json/3/searchteams.php?t=${encodeURIComponent(name)}`);
+    const d = await r.json();
+    return d.teams?.[0]?.strTeamBadge || null;
+  } catch { return null; }
+}
+
+function daysUntil(dateStr) {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const d = new Date(dateStr + 'T12:00:00'); d.setHours(0,0,0,0);
+  return Math.round((d - today) / 86400000);
+}
+
+function formatDate(dateStr) {
+  const d = new Date(dateStr + 'T12:00:00');
+  return `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+function countdownHtml(dateStr) {
+  const days = daysUntil(dateStr);
+  if (days < 0) return `<span class="countdown far">Hace ${Math.abs(days)} días</span>`;
+  if (days === 0) return `<span class="countdown fire">¡Hoy! 🔥</span>`;
+  if (days <= 7) return `<span class="countdown fire">¡${days} días! ⚡</span>`;
+  if (days <= 30) return `<span class="countdown soon">${days} días</span>`;
+  return `<span class="countdown far">${days} días</span>`;
+}
+
+function badgeHtml(grupo) {
+  const map = { Personal: 'personal', Familia: 'familia', Amigos: 'amigos' };
+  const emoji = { Personal: '🎧', Familia: '👨‍👩‍👧', Amigos: '🎉' };
+  return `<span class="badge ${map[grupo] || 'personal'}">${emoji[grupo] || ''} ${grupo}</span>`;
+}
+
+function typeEmoji(tipo) {
+  return tipo === 'Concierto' ? '🎵' : tipo === 'Beisbol' ? '⚾' : '🏀';
+}
+
+async function loadEventos() {
+  try {
+    const data = await fetch(`${SUPABASE_URL}/rest/v1/eventos?order=fecha.asc`, {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+    });
+    eventos = await data.json();
+    renderEventos();
+  } catch(e) {
+    document.getElementById('events-container').innerHTML = '<div class="loading">Error al cargar. Verifica tu conexión.</div>';
+  }
+}
+
+function renderEventos() {
+  let filtered = eventos;
+  if (currentFilter !== 'todos') {
+    filtered = eventos.filter(e => e.tipo === currentFilter || e.grupo === currentFilter);
+  }
+  if (currentTab === 'proximos') filtered = filtered.filter(e => daysUntil(e.fecha) >= 0);
+  if (currentTab === 'pasados') filtered = filtered.filter(e => daysUntil(e.fecha) < 0);
+
+  const conciertos = eventos.filter(e => e.tipo === 'Concierto' && daysUntil(e.fecha) < 0).length;
+  const deportes = eventos.filter(e => e.tipo !== 'Concierto' && daysUntil(e.fecha) < 0).length;
+  const total = eventos.filter(e => daysUntil(e.fecha) < 0).length;
+  document.getElementById('stat-conciertos').textContent = conciertos;
+  document.getElementById('stat-deportes').textContent = deportes;
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('nav-sub').textContent = `${eventos.length} eventos · ${filtered.filter(e=>daysUntil(e.fecha)>=0).length} próximos`;
+
+  const upcoming = filtered.filter(e => daysUntil(e.fecha) >= 0);
+  const past = filtered.filter(e => daysUntil(e.fecha) < 0).reverse();
+
+  let html = '';
+  if (filtered.length === 0) {
+    html = `<div class="empty-state"><div class="emoji">🎤</div><p>No hay eventos aquí todavía.<br>¡Agrega el primero!</p></div>`;
+  } else {
+    if (upcoming.length > 0) {
+      const next = upcoming[0];
+      const d = new Date(next.fecha + 'T12:00:00');
+      html += `<div class="featured" onclick="openDetail('${next.id}')">`;
+      if (next.imagen_url) {
+        html += `<img src="${next.imagen_url}" class="featured-img" onerror="this.style.display='none'">`;
+      } else {
+        html += `<div class="featured-img-placeholder">${typeEmoji(next.tipo)}</div>`;
+      }
+      html += `<div class="featured-body">
+        <div class="featured-tag">Próximo evento</div>
+        <div class="featured-name">${next.nombre}</div>
+        <div class="featured-sub">${formatDate(next.fecha)}${next.venue ? ' · ' + next.venue : ''}</div>
+        <div class="featured-badges">${countdownHtml(next.fecha)} ${badgeHtml(next.grupo)}</div>
+      </div></div>`;
+
+      if (upcoming.length > 1) {
+        html += `<div class="section-label"><div class="section-dot"></div>Próximos (${upcoming.length})</div><div class="cards">`;
+        upcoming.slice(1).forEach(e => { html += cardHtml(e); });
+        html += '</div>';
+      }
+    }
+    if (past.length > 0) {
+      html += `<div class="section-label"><div class="section-dot past"></div>Pasados (${past.length})</div><div class="cards">`;
+      past.forEach(e => { html += cardHtml(e, true); });
+      html += '</div>';
+    }
+  }
+  document.getElementById('events-container').innerHTML = html;
+}
+
+function cardHtml(e, isPast) {
+  const d = new Date(e.fecha + 'T12:00:00');
+  const isS = e.tipo !== 'Concierto';
+  return `<div class="ecard" onclick="openDetail('${e.id}')" style="${isPast?'opacity:0.75':''}">
+    ${e.imagen_url ? `<div style="position:relative"><img src="${e.imagen_url}" class="ecard-img" onerror="this.parentElement.innerHTML='<div class=ecard-img-placeholder>${typeEmoji(e.tipo)}</div>'"><div class="ecard-img-overlay"></div></div>` : ''}
+    <div class="ecard-body">
+      <div class="ecard-date ${isS?'sports':''}">
+        <div class="day">${d.getDate()}</div>
+        <div class="mon">${MONTHS[d.getMonth()]}</div>
+      </div>
+      <div class="ecard-info">
+        <div class="ecard-name">${typeEmoji(e.tipo)} ${e.nombre}</div>
+        ${e.rival ? `<div class="ecard-sub">vs ${e.rival}</div>` : ''}
+        <div class="ecard-sub">${e.venue || ''}</div>
+        <div class="ecard-badges">
+          ${badgeHtml(e.grupo)}
+          ${e.resultado === 'Ganaron' ? '<span class="badge win">✓ Ganaron</span>' : ''}
+          ${e.resultado === 'Perdieron' ? '<span class="badge loss">✗ Perdieron</span>' : ''}
+          ${e.seccion ? `<span class="badge personal">🪑 ${e.seccion}</span>` : ''}
+        </div>
+      </div>
+      <div class="ecard-right">
+        ${isPast ? '' : countdownHtml(e.fecha)}
+        ${e.asistentes ? `<div class="attendees">👥 ${e.asistentes.split(',').length}</div>` : ''}
+      </div>
+    </div>
+  </div>`;
+}
+
+async function openDetail(id) {
+  currentEventoId = id;
+  currentStars = 0;
+  const e = eventos.find(x => x.id === id);
+  if (!e) return;
+
+  document.getElementById('detail-name').textContent = e.nombre;
+  document.getElementById('detail-sub').textContent = `${formatDate(e.fecha)}${e.venue ? ' · ' + e.venue : ''}`;
+
+  const heroEl = document.getElementById('detail-hero-img');
+  if (e.imagen_url) {
+    heroEl.innerHTML = `<img src="${e.imagen_url}" class="detail-hero" onerror="this.parentElement.innerHTML='<div class=detail-hero-placeholder>${typeEmoji(e.tipo)}</div>'">`;
+  } else {
+    heroEl.innerHTML = `<div class="detail-hero-placeholder">${typeEmoji(e.tipo)}</div>`;
+  }
+
+  let rows = `
+    <div class="detail-row"><span class="detail-icon">📅</span><span class="detail-label">Fecha</span><span class="detail-value">${formatDate(e.fecha)}</span></div>
+    <div class="detail-row"><span class="detail-icon">📍</span><span class="detail-label">Venue</span><span class="detail-value">${e.venue || '—'}</span></div>
+    <div class="detail-row"><span class="detail-icon">👥</span><span class="detail-label">Grupo</span><span class="detail-value">${e.grupo}</span></div>
+  `;
+  if (e.asistentes) rows += `<div class="detail-row"><span class="detail-icon">🎟️</span><span class="detail-label">Asistentes</span><span class="detail-value">${e.asistentes}</span></div>`;
+  if (e.rival) rows += `<div class="detail-row"><span class="detail-icon">⚔️</span><span class="detail-label">Rival</span><span class="detail-value">${e.rival}</span></div>`;
+  if (e.seccion) rows += `<div class="detail-row"><span class="detail-icon">🪑</span><span class="detail-label">Sección</span><span class="detail-value">${e.seccion}</span></div>`;
+  if (e.notas) rows += `<div class="detail-row"><span class="detail-icon">📝</span><span class="detail-label">Notas</span><span class="detail-value">${e.notas}</span></div>`;
+  document.getElementById('detail-rows').innerHTML = rows;
+
+  renderStars(0);
+  document.getElementById('review-autor').value = '';
+  document.getElementById('review-comentario').value = '';
+
+  await loadReviews(id);
+
+  document.getElementById('detail-view').classList.remove('hidden');
+  document.getElementById('main-view').style.display = 'none';
+}
+
+function closeDetail() {
+  document.getElementById('detail-view').classList.add('hidden');
+  document.getElementById('main-view').style.display = '';
+}
+
+async function loadReviews(id) {
+  try {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/resenas?evento_id=eq.${id}&order=fecha.desc`, {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+    });
+    const reviews = await r.json();
+    const el = document.getElementById('reviews-list');
+    if (!reviews.length) { el.innerHTML = '<div class="empty-reviews">Aún no hay reseñas. ¡Sé el primero!</div>'; return; }
+    el.innerHTML = reviews.map(rv => `
+      <div class="review-item">
+        <div class="review-author">
+          <span>${rv.autor}</span>
+          <span class="review-stars">${'★'.repeat(rv.calificacion || 0)}${'☆'.repeat(5-(rv.calificacion||0))}</span>
+        </div>
+        <div class="review-text">${rv.comentario || ''}</div>
+      </div>
+    `).join('');
+  } catch {}
+}
+
+function renderStars(n) {
+  const stars = document.querySelectorAll('#stars-input .star');
+  stars.forEach((s, i) => s.classList.toggle('on', i < n));
+}
+
+function setStar(n) { currentStars = n; renderStars(n); }
+
+async function submitReview() {
+  const autor = document.getElementById('review-autor').value.trim();
+  const comentario = document.getElementById('review-comentario').value.trim();
+  if (!autor) { showToast('Escribe tu nombre', true); return; }
+  if (!currentStars) { showToast('Selecciona una calificación', true); return; }
+  try {
+    await api('POST', 'resenas', { evento_id: currentEventoId, autor, calificacion: currentStars, comentario });
+    showToast('Reseña publicada ✓');
+    document.getElementById('review-autor').value = '';
+    document.getElementById('review-comentario').value = '';
+    setStar(0);
+    await loadReviews(currentEventoId);
+  } catch { showToast('Error al publicar', true); }
+}
+
+async function deleteEvento() {
+  if (!confirm('¿Eliminar este evento?')) return;
+  try {
+    await api('DELETE', `eventos?id=eq.${currentEventoId}`, null, null);
+    showToast('Evento eliminado');
+    closeDetail();
+    await loadEventos();
+  } catch { showToast('Error al eliminar', true); }
+}
+
+function notifyAttendees() {
+  const e = eventos.find(x => x.id === currentEventoId);
+  if (!e) return;
+  const who = e.asistentes || 'nadie';
+  showToast(`Notificación registrada para: ${who}`);
+}
+
+function openAdd() {
+  editingId = null;
+  document.getElementById('modal-title').textContent = 'Nuevo evento';
+  document.getElementById('f-nombre').value = '';
+  document.getElementById('f-rival').value = '';
+  document.getElementById('f-venue').value = '';
+  document.getElementById('f-fecha').value = '';
+  document.getElementById('f-asistentes').value = '';
+  document.getElementById('f-notas').value = '';
+  document.getElementById('f-imagen').value = '';
+  document.getElementById('f-seccion').value = '';
+  setTipo('Concierto');
+  setGrupo('Personal');
+  document.getElementById('add-modal').classList.remove('hidden');
+}
+
+function closeAdd() { document.getElementById('add-modal').classList.add('hidden'); }
+
+function setTipo(t) {
+  formTipo = t;
+  document.querySelectorAll('.tipo-btn').forEach(b => b.classList.toggle('active', b.textContent.includes(t === 'Concierto' ? '🎵' : t === 'Beisbol' ? '⚾' : '🏀')));
+  const isS = t !== 'Concierto';
+  document.getElementById('f-rival-group').style.display = isS ? '' : 'none';
+  document.getElementById('f-seccion-group').style.display = isS ? '' : 'none';
+}
+
+function setGrupo(g) {
+  formGrupo = g;
+  document.querySelectorAll('.group-btn').forEach(b => b.classList.toggle('active', b.textContent.includes(g)));
+}
+
+function setTab(t) {
+  currentTab = t;
+  document.querySelectorAll('.tab').forEach((b,i) => b.classList.toggle('active', ['todos','proximos','pasados','historial'][i] === t));
+  if (t === 'historial') {
+    renderHistorial();
+  } else {
+    document.getElementById('main-view').innerHTML && renderEventos();
+    renderEventos();
+  }
+}
+
+function setFilter(f) {
+  currentFilter = f;
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  event.target.classList.add('active');
+  renderEventos();
+}
+
+function renderHistorial() {
+  const past = eventos.filter(e => daysUntil(e.fecha) < 0).reverse();
+  let html = `<div style="padding:12px 16px;font-size:22px;font-weight:500;">📊 Historial</div>`;
+  html += `<div class="stats" style="margin-bottom:8px;">
+    <div class="stat"><div class="stat-num" style="color:var(--purple)">${past.length}</div><div class="stat-label">total</div></div>
+    <div class="stat"><div class="stat-num">${past.filter(e=>e.tipo==='Concierto').length}</div><div class="stat-label">conciertos</div></div>
+    <div class="stat"><div class="stat-num">${past.filter(e=>e.tipo!=='Concierto').length}</div><div class="stat-label">juegos</div></div>
+  </div>`;
+  if (!past.length) { html += `<div class="empty-state"><div class="emoji">🎟️</div><p>Aún no tienes eventos pasados</p></div>`; }
+  else { html += `<div class="cards">${past.map(e => cardHtml(e, true)).join('')}</div>`; }
+  document.getElementById('events-container').innerHTML = html;
+}
+
+async function submitEvento() {
+  const nombre = document.getElementById('f-nombre').value.trim();
+  const fecha = document.getElementById('f-fecha').value;
+  if (!nombre || !fecha) { showToast('Nombre y fecha son obligatorios', true); return; }
+
+  const data = {
+    nombre,
+    tipo: formTipo,
+    fecha,
+    venue: document.getElementById('f-venue').value.trim(),
+    grupo: formGrupo,
+    asistentes: document.getElementById('f-asistentes').value.trim(),
+    notas: document.getElementById('f-notas').value.trim(),
+    rival: document.getElementById('f-rival').value.trim(),
+    seccion: document.getElementById('f-seccion').value.trim(),
+    imagen_url: document.getElementById('f-imagen').value.trim(),
+  };
+
+  if (!data.imagen_url) {
+    if (formTipo === 'Concierto') data.imagen_url = await getArtistImage(nombre) || '';
+    else data.imagen_url = await getTeamImage(nombre) || '';
+  }
+
+  try {
+    await api('POST', 'eventos', data);
+    showToast('Evento agregado 🎵');
+    closeAdd();
+    await loadEventos();
+  } catch { showToast('Error al guardar', true); }
+}
+
+function showToast(msg, isError) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast${isError ? ' error' : ''}`;
+  setTimeout(() => t.classList.add('hidden'), 3000);
+}
+
+loadEventos();
+</script>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <div class="nav-item active" onclick="setTab('todos')">
+    <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
+    <span>Inicio</span>
+  </div>
+  <div class="nav-item" onclick="setTab('proximos')">
+    <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    <span>Próximos</span>
+  </div>
+  <div class="nav-item" onclick="openAdd()">
+    <div class="nav-fab">
+      <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    </div>
+  </div>
+  <div class="nav-item" onclick="setTab('historial')">
+    <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+    <span>Historial</span>
+  </div>
+  <div class="nav-item" onclick="setTab('pasados')">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 8 12 12 14 14"/></svg>
+    <span>Pasados</span>
+  </div>
+</div>
+
+</body>
+</html>
