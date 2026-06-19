@@ -439,13 +439,21 @@ async function getTeamImage(name, tipo) {
   } catch { return null; }
 }
 
-async function loadEventos() {
-  try {
-    eventos = await supaFetch('eventos?order=fecha.asc');
-    checkUpcomingNotifications();
-    renderEventos();
-  } catch {
-    document.getElementById('events-container').innerHTML='<div class="loading">Error al cargar eventos.</div>';
+async function loadEventos(retries=3) {
+  for (let i=0; i<retries; i++) {
+    try {
+      eventos = await supaFetch('eventos?order=fecha.asc');
+      checkUpcomingNotifications();
+      renderEventos();
+      return;
+    } catch(err) {
+      if (i < retries-1) {
+        await new Promise(r => setTimeout(r, 1000 * (i+1)));
+      } else {
+        document.getElementById('events-container').innerHTML=
+          '<div class="empty-state"><div class="emoji">😿</div><p>Error al cargar.<br><button onclick="loadEventos()" style="margin-top:12px;padding:8px 20px;border-radius:8px;border:none;background:var(--purple);color:#fff;font-size:13px;cursor:pointer;">Reintentar</button></p></div>';
+      }
+    }
   }
 }
 
