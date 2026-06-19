@@ -277,7 +277,7 @@
       <button class="submit-btn" style="margin-top:8px;" onclick="submitReview()">Publicar reseña</button>
     </div>
     <div id="reviews-list"></div>
-    <button class="action-btn notify-btn" onclick="notifyAttendees()">🔔 Notificar asistentes</button>
+    <button class="action-btn notify-btn" onclick="refreshImage()">🔄 Actualizar imagen</button>
     <button class="action-btn delete-btn" onclick="deleteEvento()">🗑️ Eliminar evento</button>
   </div>
 </div>
@@ -301,7 +301,7 @@
 <div class="modal-overlay hidden" id="add-modal">
   <div class="modal">
     <div class="modal-handle"></div>
-    <div class="modal-title">Nuevo evento</div>
+    <div class="modal-title" id="modal-title">Nuevo evento</div>
     <div class="form-group">
       <label class="form-label">Tipo de evento</label>
       <div class="tipo-btns">
@@ -361,6 +361,7 @@ const SPOTIFY_CLIENT_SECRET = 'TU_SPOTIFY_CLIENT_SECRET';
 
 let eventos = [], currentEventoId = null, currentStars = 0;
 let formTipo = 'Concierto', formGrupo = 'Personal';
+let editMode = false, editEventoId = null;
 let currentTab = 'todos', currentStatFilter = null;
 let calYear, calMonth, calSelectedDate = null;
 let spotifyToken = null;
@@ -662,19 +663,27 @@ function updateNotifIcon() {
 
 function checkUpcomingNotifications() {
   if (!('Notification' in window) || Notification.permission!=='granted') return;
-  const lastCheck = localStorage.getItem('lastNotifCheck');
-  const today = new Date().toDateString();
-  if (lastCheck===today) return;
-  localStorage.setItem('lastNotifCheck', today);
-  const upcoming = eventos.filter(e=>{ const d=daysUntil(e.fecha); return d>=0&&d<=3; });
-  upcoming.forEach(e=>{
+  const todayStr = new Date().toDateString();
+  const sentKey = 'notifSent_' + todayStr;
+  const sent = JSON.parse(localStorage.getItem(sentKey)||'{}');
+  const triggers = [0, 3, 7];
+  eventos.forEach(e => {
     const days = daysUntil(e.fecha);
-    const msg = days===0?'¡Es HOY!':days===1?'¡Es mañana!':`Faltan ${days} días`;
+    if (!triggers.includes(days)) return;
+    const key = `${e.id}_${days}`;
+    if (sent[key]) return;
+    const msg = days===0 ? '¡Es HOY! 🔥' : `Faltan ${days} días`;
     new Notification(`${typeEmoji(e.tipo)} ${e.nombre}`, {
       body: `${msg} · ${e.venue||''}`,
       icon: '/CHiqui.png'
     });
+    sent[key] = true;
   });
+  localStorage.setItem(sentKey, JSON.stringify(sent));
+  // Limpiar claves viejas (más de 10 días)
+  for (let k of Object.keys(localStorage)) {
+    if (k.startsWith('notifSent_') && k !== sentKey) localStorage.removeItem(k);
+  }
 }
 
 // ── DETAIL ──
@@ -757,17 +766,45 @@ async function deleteEvento() {
   } catch { showToast('Error al eliminar',true); }
 }
 
-function notifyAttendees() {
-  const e = eventos.find(x=>x.id===currentEventoId);
-  showToast(`Notificación registrada: ${e?.asistentes||'sin asistentes'}`);
+async function refreshImage() {
+  const e = eventos.find(x=>x.id===currentEventoId); if (!e) return;
+  showToast('Buscando imagen...');
+  const imagen_url = e.tipo==='Concierto' ? await getArtistImage(e.nombre)||'' : await getTeamImage(e.nombre, e.tipo)||'';
+  if (!imagen_url) { showToast('No se encontró imagen', true); return; }
+  try {
+    await supaFetch(`eventos?id=eq.${e.id}`,{method:'PATCH',headers:{'Prefer':'return=representation'},body:JSON.stringify({imagen_url})});
+    showToast('Imagen actualizada ✓');
+    await loadEventos();
+    openDetail(e.id);
+  } catch { showToast('Error al actualizar',true); }
 }
 
 function openEdit() {
   const e = eventos.find(x=>x.id===currentEventoId); if (!e) return;
-  showToast('Editar evento — próximamente en v5 ✏️');
+  editMode = true; editEventoId = e.id;
+  document.getElementById('modal-title').textContent = 'Editar evento';
+  document.getElementById('f-nombre').value = e.nombre || '';
+  document.getElementById('f-venue').value = e.venue || '';
+  document.getElementById('f-fecha').value = e.fecha || '';
+  document.getElementById('f-asistentes').value = e.asistentes || '';
+  document.getElementById('f-notas').value = e.notas || '';
+  document.getElementById('f-rival').value = e.rival || '';
+  document.getElementById('f-seccion').value = e.seccion || '';
+  formTipo = e.tipo || 'Concierto';
+  formGrupo = e.grupo || 'Personal';
+  document.querySelectorAll('.tipo-btn').forEach(b => b.classList.remove('active'));
+  const tipoMap = {'Concierto':0,'Beisbol':1,'Basketball':2};
+  document.querySelectorAll('.tipo-btn')[tipoMap[formTipo]||0].classList.add('active');
+  document.querySelectorAll('.group-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.group-btn').forEach(b => { if (b.textContent.includes(formGrupo)) b.classList.add('active'); });
+  document.getElementById('f-rival-group').classList.toggle('hidden', formTipo==='Concierto');
+  document.getElementById('f-seccion-group').classList.toggle('hidden', formTipo==='Concierto');
+  document.getElementById('submit-btn').textContent = 'Guardar cambios ✏️';
+  document.getElementById('add-modal').classList.remove('hidden');
 }
 
 function openAdd() {
+  editMode = false; editEventoId = null;
   ['f-nombre','f-rival','f-venue','f-asistentes','f-notas','f-seccion','f-fecha'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.querySelectorAll('.tipo-btn').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.tipo-btn')[0].classList.add('active');
@@ -776,6 +813,7 @@ function openAdd() {
   formTipo='Concierto'; formGrupo='Personal';
   document.getElementById('f-rival-group').classList.add('hidden');
   document.getElementById('f-seccion-group').classList.add('hidden');
+  document.getElementById('modal-title').textContent='Nuevo evento';
   document.getElementById('submit-btn').textContent='Guardar evento 🎵';
   document.getElementById('add-modal').classList.remove('hidden');
 }
@@ -812,6 +850,26 @@ async function submitEvento() {
   const nombre=document.getElementById('f-nombre').value.trim();
   const fecha=document.getElementById('f-fecha').value;
   if (!nombre||!fecha){showToast('Nombre y fecha son obligatorios',true);return;}
+
+  if (editMode) {
+    try {
+      await supaFetch(`eventos?id=eq.${editEventoId}`,{method:'PATCH',headers:{'Prefer':'return=representation'},body:JSON.stringify({
+        nombre,tipo:formTipo,fecha,
+        venue:document.getElementById('f-venue').value.trim(),
+        grupo:formGrupo,
+        asistentes:document.getElementById('f-asistentes').value.trim(),
+        notas:document.getElementById('f-notas').value.trim(),
+        rival:document.getElementById('f-rival').value.trim(),
+        seccion:document.getElementById('f-seccion').value.trim(),
+      })});
+      showToast('Evento actualizado ✏️');
+      closeAdd();
+      await loadEventos();
+      if (currentTab==='calendario') renderCal();
+    } catch { showToast('Error al guardar',true); }
+    return;
+  }
+
   showToast('Buscando imagen...');
   const imagen_url = formTipo==='Concierto' ? await getArtistImage(nombre)||'' : await getTeamImage(nombre, formTipo)||'';
   try {
