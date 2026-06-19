@@ -835,19 +835,22 @@ async function submitEvento() {
   if (!nombre||!fecha){showToast('Nombre y fecha son obligatorios',true);return;}
 
   if (editMode) {
+    const payload = {
+      nombre, tipo:formTipo, fecha,
+      venue:document.getElementById('f-venue').value.trim(),
+      grupo:formGrupo,
+      asistentes:document.getElementById('f-asistentes').value.trim(),
+      notas:document.getElementById('f-notas').value.trim(),
+      rival:document.getElementById('f-rival').value.trim(),
+      seccion:document.getElementById('f-seccion').value.trim(),
+    };
     try {
-      await supaFetch(`eventos?id=eq.${editEventoId}`,{method:'PATCH',headers:{'Prefer':'return=representation'},body:JSON.stringify({
-        nombre,tipo:formTipo,fecha,
-        venue:document.getElementById('f-venue').value.trim(),
-        grupo:formGrupo,
-        asistentes:document.getElementById('f-asistentes').value.trim(),
-        notas:document.getElementById('f-notas').value.trim(),
-        rival:document.getElementById('f-rival').value.trim(),
-        seccion:document.getElementById('f-seccion').value.trim(),
-      })});
+      await supaFetch(`eventos?id=eq.${editEventoId}`,{method:'PATCH',headers:{'Prefer':'return=representation'},body:JSON.stringify(payload)});
+      const idx = eventos.findIndex(x=>x.id===editEventoId);
+      if (idx>=0) eventos[idx] = {...eventos[idx], ...payload};
       showToast('Evento actualizado ✏️');
       closeAdd();
-      await loadEventos();
+      renderEventos();
     } catch { showToast('Error al guardar',true); }
     return;
   }
