@@ -90,14 +90,15 @@
   .cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 2px; padding: 0 12px 8px; }
   .cal-cell { aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 8px; font-size: 13px; color: var(--text2); position: relative; cursor: pointer; transition: background 0.15s; }
   .cal-cell:active { opacity: 0.7; }
-  .cal-cell.today { background: rgba(127,119,221,0.2); color: var(--purple); font-weight: 700; }
-  .cal-cell.has-event { color: var(--text); font-weight: 500; }
-  .cal-cell .dot { position: absolute; bottom: 3px; width: 4px; height: 4px; border-radius: 50%; }
-  .dot.music { background: var(--purple); }
-  .dot.sports { background: var(--teal); }
-  .dot.both { background: var(--amber); }
-  .cal-cell.selected { background: var(--purple); color: #fff; font-weight: 700; }
-  .cal-cell.selected .dot { background: #fff; }
+  .cal-cell.today { background: rgba(127,119,221,0.15); color: #fff; font-weight: 700; box-shadow: inset 0 0 0 2px #ffffff; }
+  .cal-cell.has-event { color: #fff; font-weight: 700; }
+  .cal-cell.ev-music { background: var(--purple); }
+  .cal-cell.ev-sports { background: var(--teal); }
+  .cal-cell.ev-both { background: linear-gradient(135deg, var(--purple) 50%, var(--teal) 50%); }
+  .cal-cell.selected { box-shadow: inset 0 0 0 2px rgba(255,255,255,0.8); }
+  .cal-cell.today.ev-music { background: var(--purple); box-shadow: inset 0 0 0 2px #fff; }
+  .cal-cell.today.ev-sports { background: var(--teal); box-shadow: inset 0 0 0 2px #fff; }
+  .cal-cell.today.ev-both { background: linear-gradient(135deg, var(--purple) 50%, var(--teal) 50%); box-shadow: inset 0 0 0 2px #fff; }
   .cal-legend { display: flex; gap: 14px; padding: 0 14px 10px; }
   .legend-item { display: flex; align-items: center; gap: 5px; font-size: 10px; color: var(--text2); }
   .legend-dot { width: 6px; height: 6px; border-radius: 50%; }
@@ -242,9 +243,10 @@
     </div>
     <div class="cal-grid" id="cal-grid"></div>
     <div class="cal-legend">
-      <div class="legend-item"><div class="legend-dot" style="background:var(--purple)"></div>Concierto</div>
-      <div class="legend-item"><div class="legend-dot" style="background:var(--teal)"></div>Deporte</div>
-      <div class="legend-item"><div class="legend-dot" style="background:var(--amber)"></div>Varios</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--purple);border-radius:3px;width:10px;height:10px;"></div>Concierto</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--teal);border-radius:3px;width:10px;height:10px;"></div>Deporte</div>
+      <div class="legend-item"><div class="legend-dot" style="background:linear-gradient(135deg,var(--purple) 50%,var(--teal) 50%);border-radius:3px;width:10px;height:10px;"></div>Ambos</div>
+      <div class="legend-item"><div class="legend-dot" style="background:rgba(127,119,221,0.15);border-radius:3px;width:10px;height:10px;box-shadow:inset 0 0 0 2px #fff;"></div>Hoy</div>
     </div>
     <div class="cal-divider"></div>
     <div class="cal-day-events" id="cal-day-events"></div>
@@ -256,6 +258,7 @@
   <div style="position:relative;">
     <div id="detail-hero-img"></div>
     <button class="detail-back" onclick="closeDetail()">←</button>
+    <button id="detail-edit-btn" style="position:absolute;top:14px;right:14px;background:rgba(0,0,0,0.5);border:none;border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;font-size:16px;" onclick="openEdit()">✏️</button>
   </div>
   <div class="detail-body">
     <div class="detail-name" id="detail-name"></div>
@@ -276,6 +279,21 @@
     <div id="reviews-list"></div>
     <button class="action-btn notify-btn" onclick="notifyAttendees()">🔔 Notificar asistentes</button>
     <button class="action-btn delete-btn" onclick="deleteEvento()">🗑️ Eliminar evento</button>
+  </div>
+</div>
+<!-- DETAIL BOTTOM NAV -->
+<div id="detail-bottom-nav" class="hidden" style="position:fixed;bottom:0;left:0;right:0;max-width:600px;margin:0 auto;background:var(--bg2);border-top:1px solid var(--border);display:flex;justify-content:space-around;padding:8px 0 12px;z-index:300;">
+  <div style="display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;" onclick="closeDetail()">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--purple)" stroke-width="1.5"><polyline points="15 18 9 12 15 6"/></svg>
+    <span style="font-size:9px;color:var(--purple);">Regresar</span>
+  </div>
+  <div style="display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;" onclick="openEdit()">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--text2)" stroke-width="1.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+    <span style="font-size:9px;color:var(--text2);">Editar</span>
+  </div>
+  <div style="display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;" onclick="deleteEvento()">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="1.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+    <span style="font-size:9px;color:var(--red);">Eliminar</span>
   </div>
 </div>
 
@@ -406,8 +424,15 @@ async function getArtistImage(name) {
   } catch { return null; }
 }
 
-async function getTeamImage(name) {
+async function getTeamImage(name, tipo) {
   try {
+    const isDiablos = name.toLowerCase().includes('diablo');
+    if (isDiablos && tipo === 'Beisbol') {
+      return 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Diablos_Rojos_del_M%C3%A9xico_logo.svg/800px-Diablos_Rojos_del_M%C3%A9xico_logo.svg.png';
+    }
+    if (isDiablos && tipo === 'Basketball') {
+      return 'https://lnbp.com.mx/wp-content/uploads/2023/06/diablos-rojos-basketball.png';
+    }
     const r = await fetch(`https://www.thesportsdb.com/api/v1/json/3/searchteams.php?t=${encodeURIComponent(name)}`);
     return (await r.json()).teams?.[0]?.strTeamBadge||null;
   } catch { return null; }
@@ -580,13 +605,12 @@ function renderCal() {
     const evs = eventsByDate[d]||[];
     const hasMusic = evs.some(e=>e.tipo==='Concierto');
     const hasSports = evs.some(e=>e.tipo!=='Concierto');
-    let dotClass = hasMusic&&hasSports?'both':hasMusic?'music':hasSports?'sports':'';
+    let evClass = hasMusic&&hasSports?'ev-both':hasMusic?'ev-music':hasSports?'ev-sports':'';
     let cls = 'cal-cell';
     if (isToday) cls+=' today';
     if (isSelected) cls+=' selected';
-    if (evs.length>0) cls+=' has-event';
-    html += `<div class="${cls}" onclick="selectCalDay(${d})">${d}${dotClass?`<div class="dot ${dotClass}"></div>`:''}`;
-    html += '</div>';
+    if (evs.length>0) cls+=' has-event '+evClass;
+    html += `<div class="${cls}" onclick="selectCalDay(${d})">${d}</div>`;
   }
   document.getElementById('cal-grid').innerHTML = html;
   renderCalDayEvents();
@@ -678,12 +702,14 @@ async function openDetail(id) {
   document.getElementById('review-comentario').value='';
   await loadReviews(id);
   document.getElementById('detail-view').classList.remove('hidden');
+  document.getElementById('detail-bottom-nav').classList.remove('hidden');
   document.getElementById('main-view').style.display='none';
   document.getElementById('cal-view').classList.add('hidden');
 }
 
 function closeDetail() {
   document.getElementById('detail-view').classList.add('hidden');
+  document.getElementById('detail-bottom-nav').classList.add('hidden');
   if (currentTab==='calendario') {
     document.getElementById('cal-view').classList.remove('hidden');
   } else {
@@ -736,6 +762,11 @@ function notifyAttendees() {
   showToast(`Notificación registrada: ${e?.asistentes||'sin asistentes'}`);
 }
 
+function openEdit() {
+  const e = eventos.find(x=>x.id===currentEventoId); if (!e) return;
+  showToast('Editar evento — próximamente en v5 ✏️');
+}
+
 function openAdd() {
   ['f-nombre','f-rival','f-venue','f-asistentes','f-notas','f-seccion','f-fecha'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.querySelectorAll('.tipo-btn').forEach(b=>b.classList.remove('active'));
@@ -782,7 +813,7 @@ async function submitEvento() {
   const fecha=document.getElementById('f-fecha').value;
   if (!nombre||!fecha){showToast('Nombre y fecha son obligatorios',true);return;}
   showToast('Buscando imagen...');
-  const imagen_url = formTipo==='Concierto' ? await getArtistImage(nombre)||'' : await getTeamImage(nombre)||'';
+  const imagen_url = formTipo==='Concierto' ? await getArtistImage(nombre)||'' : await getTeamImage(nombre, formTipo)||'';
   try {
     await supaFetch('eventos',{method:'POST',headers:{'Prefer':'return=representation'},body:JSON.stringify({
       nombre,tipo:formTipo,fecha,
