@@ -428,10 +428,10 @@ async function getTeamImage(name, tipo) {
   try {
     const isDiablos = name.toLowerCase().includes('diablo');
     if (isDiablos && tipo === 'Beisbol') {
-      return 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Diablos_Rojos_del_M%C3%A9xico_logo.svg/800px-Diablos_Rojos_del_M%C3%A9xico_logo.svg.png';
+      return '/diablos-beisbol.png';
     }
     if (isDiablos && tipo === 'Basketball') {
-      return 'https://lnbp.com.mx/wp-content/uploads/2023/06/diablos-rojos-basketball.png';
+      return '/diablos-basketball.png';
     }
     const r = await fetch(`https://www.thesportsdb.com/api/v1/json/3/searchteams.php?t=${encodeURIComponent(name)}`);
     return (await r.json()).teams?.[0]?.strTeamBadge||null;
