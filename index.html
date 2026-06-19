@@ -658,26 +658,20 @@ function updateNotifIcon() {
 
 function checkUpcomingNotifications() {
   if (!('Notification' in window) || Notification.permission!=='granted') return;
-  const todayStr = new Date().toDateString();
-  const sentKey = 'notifSent_' + todayStr;
-  const sent = JSON.parse(localStorage.getItem(sentKey)||'{}');
-  const triggers = [0, 3, 7];
-  eventos.forEach(e => {
+  const lastCheck = localStorage.getItem('lastNotifCheck');
+  const today = new Date().toDateString();
+  if (lastCheck===today) return;
+  localStorage.setItem('lastNotifCheck', today);
+  const upcoming = eventos.filter(e=>{ const d=daysUntil(e.fecha); return d>=0&&d<=7; });
+  upcoming.forEach(e=>{
     const days = daysUntil(e.fecha);
-    if (!triggers.includes(days)) return;
-    const key = `${e.id}_${days}`;
-    if (sent[key]) return;
-    const msg = days===0 ? '¡Es HOY! 🔥' : `Faltan ${days} días`;
+    if (![0,3,7].includes(days)) return;
+    const msg = days===0?'¡Es HOY! 🔥':`Faltan ${days} días`;
     new Notification(`${typeEmoji(e.tipo)} ${e.nombre}`, {
       body: `${msg} · ${e.venue||''}`,
       icon: '/CHiqui.png'
     });
-    sent[key] = true;
   });
-  localStorage.setItem(sentKey, JSON.stringify(sent));
-  for (let k of Object.keys(localStorage)) {
-    if (k.startsWith('notifSent_') && k !== sentKey) localStorage.removeItem(k);
-  }
 }
 
 // ── DETAIL ──
