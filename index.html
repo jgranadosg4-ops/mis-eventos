@@ -20,13 +20,13 @@
   html, body { height: 100%; }
   body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; max-width: 600px; margin: 0 auto; }
 
-  .nav { background: var(--bg2); padding: 18px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+  .nav { background: var(--bg2); padding: 20px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
   .nav-left { display: flex; align-items: center; gap: 10px; }
-  .nav-cat { width: 32px; height: 32px; border-radius: 10px; overflow: hidden; }
+  .nav-cat { width: 42px; height: 42px; border-radius: 12px; overflow: hidden; }
   .nav-cat img { width: 100%; height: 100%; object-fit: cover; }
-  .nav-cat-fallback { width: 32px; height: 32px; border-radius: 10px; background: #2d1a4e; display: flex; align-items: center; justify-content: center; font-size: 18px; }
-  .nav-title { font-size: 18px; font-weight: 600; }
-  .nav-sub { font-size: 11px; color: var(--text2); margin-top: 1px; }
+  .nav-cat-fallback { width: 42px; height: 42px; border-radius: 12px; background: #2d1a4e; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+  .nav-title { font-size: 20px; font-weight: 600; }
+  .nav-sub { font-size: 12px; color: var(--text2); margin-top: 2px; }
 
   .tabs { display: flex; background: var(--bg2); border-bottom: 1px solid var(--border); }
   .tab { flex: 1; padding: 10px 8px; font-size: 12px; color: var(--text2); cursor: pointer; white-space: nowrap; border-bottom: 2px solid transparent; text-align: center; }
@@ -191,15 +191,15 @@
     </div>
   </div>
   <div style="display:flex;align-items:center;gap:8px;">
-    <div style="text-align:center;background:rgba(127,119,221,0.12);border-radius:10px;padding:5px 10px;min-width:52px;">
+    <div style="text-align:center;background:rgba(127,119,221,0.12);border-radius:10px;padding:7px 12px;min-width:56px;">
       <div style="font-size:9px;color:#9999bb;margin-bottom:1px;">este mes</div>
-      <div style="font-size:18px;font-weight:700;color:#f0f0f0;line-height:1;" id="month-count">0</div>
+      <div style="font-size:22px;font-weight:700;color:#f0f0f0;line-height:1;" id="month-count">0</div>
     </div>
-    <div style="text-align:center;background:rgba(127,119,221,0.12);border-radius:10px;padding:5px 10px;min-width:52px;">
+    <div style="text-align:center;background:rgba(127,119,221,0.12);border-radius:10px;padding:7px 12px;min-width:56px;">
       <div style="font-size:9px;color:#9999bb;margin-bottom:1px;">siguiente</div>
       <div style="font-size:13px;font-weight:700;color:#7F77DD;line-height:1.3;" id="days-badge">—</div>
     </div>
-    <div id="notif-status" style="font-size:20px;cursor:pointer;" onclick="requestNotifPermission()" title="Activar notificaciones">🔔</div>
+    <div id="notif-status" style="font-size:24px;cursor:pointer;" onclick="requestNotifPermission()" title="Activar notificaciones">🔔</div>
   </div>
 </div>
 
