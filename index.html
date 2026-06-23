@@ -626,12 +626,14 @@ async function renderHistorial(filtered) {
         const primera = resenas[0];
         const estrellas = primera ? '★'.repeat(primera.calificacion)+'☆'.repeat(5-primera.calificacion) : '';
         const comentario = primera?.comentario || '';
-        html+=`<div style="background:var(--card);border-radius:12px;margin-bottom:8px;overflow:hidden;display:flex;height:80px;cursor:pointer;" onclick="openDetail('${e.id}')">
+        html+=`<div style="background:var(--card);border-radius:12px;margin-bottom:8px;overflow:hidden;display:flex;min-height:80px;cursor:pointer;" onclick="openDetail('${e.id}')">
           <div style="width:80px;min-width:80px;background:${bgColor};display:flex;align-items:center;justify-content:center;overflow:hidden;">${imgContent}</div>
-          <div style="flex:1;padding:10px 12px;min-width:0;display:flex;flex-direction:column;justify-content:space-between;">
-            <div style="font-size:13px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${e.nombre}</div>
-            <div style="font-size:11px;color:var(--amber);">${estrellas||'<span style="color:var(--text2)">Sin reseña</span>'}</div>
-            <div style="font-size:11px;color:var(--text2);font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${comentario?`"${comentario}"`:'—'}</div>
+          <div style="flex:1;padding:10px 12px;min-width:0;">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:5px;">
+              <div style="font-size:13px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${e.nombre}</div>
+              <div style="font-size:11px;color:${primera?'var(--amber)':'var(--text2)'};flex-shrink:0;">${estrellas||'Sin reseña'}</div>
+            </div>
+            <div style="font-size:11px;color:var(--text2);font-style:italic;line-height:1.4;">${comentario?`"${comentario}"`:'—'}</div>
           </div>
         </div>`;
       });
